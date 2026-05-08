@@ -1,6 +1,6 @@
 # Nedap Ons v1 → v2 — Uitvoeringshandleiding
 
-> **Status:** concept — gebaseerd op gesprek met Rudolf + pilotervaring Rick Jongbloed  
+> **Status:** concept — gebaseerd op gesprek met Rudolf Amersfoort + pilotervaring Rick Jongbloed  
 > **Doelgroep:** IAM Consultants Tools4ever  
 > **Doel:** 4 uur per klant op productie, zonder testomgeving (vanaf klant 4+)
 
@@ -53,22 +53,22 @@ De migratie is **100% technisch** — geen functionele wijzigingen, geen verbete
 
 ## 2. Rollen en contacten
 
-| Naam | Rol | Betrokkenheid |
-|------|-----|---------------|
-| Rick Jongbloed | Projectleider, uitvoerder klant 1+2 | Actief |
-| Rudolf | Connector-ontwikkelaar | Technische escalatie, levert migratiescripts |
-| Rick van den Dijssel | Product Owner | Feature flag inschakelen (uiterlijk T-1) |
-| Remco den Elzen | Support, Topdesk | Major ticket beheren, certificaatupgrade v7 coördineren in Nedap Podium |
-| KaHo | Nedap-consultant, zelfstandig inzetbaar | Na validatie handleiding klant 1+2 |
-| Jerry | Nedap-consultant, zelfstandig inzetbaar (2 vroege pilots) | Beschikbaar voor ervaringsvragen |
-| Rick Nieuweveen | Nedap-consultant, zelfstandig inzetbaar | Betrekken bij opschaling |
-| Rutger | Consultant opschaling (begeleiding Rick) | Betrekken na pilotfase |
-| Remco Houthuijzen | Consultant opschaling (begeleiding Rick) | Betrekken na pilotfase; auteur Reference Cleaner manual |
-| André | Consultant opschaling (begeleiding Rick) | Betrekken na pilotfase |
-| Jeroen Smit | Business Consultant | Autorisatiematrix (indien wijziging nodig) |
-| Ron | Manager | Beslissingen billing/budget |
-| Ronald | Manager delivery | Billing-beslissing vervolgklanten |
-| Farid | Manager sales | Billing-beslissing vervolgklanten |
+| Naam | Rol | E-mail | Betrokkenheid |
+|------|-----|--------|---------------|
+| Rick Jongbloed | Projectleider, uitvoerder klant 1+2 | R.Jongbloed@tools4ever.com | Actief |
+| Rudolf Amersfoort | Connector-ontwikkelaar | r.amersfoort@tools4ever.com | Technische escalatie, levert migratiescripts |
+| Rick van den Dijssel | Product Owner | R.vdDijssel@tools4ever.com | Feature flag inschakelen (uiterlijk T-1) |
+| Remco den Elzen | Support, Topdesk | R.denElzen@tools4ever.com | Major ticket beheren, certificaatupgrade v7 coördineren in Nedap Podium |
+| KaHo Man | Nedap-consultant, zelfstandig inzetbaar | K.Man@tools4ever.com | Na validatie handleiding klant 1+2 |
+| Jerry Breek | Nedap-consultant, zelfstandig inzetbaar (2 vroege pilots) | j.breek@tools4ever.com | Beschikbaar voor ervaringsvragen |
+| Rick Nieuweveen | Nedap-consultant, zelfstandig inzetbaar | R.Nieuweveen@tools4ever.com | Betrekken bij opschaling |
+| Rutger Scholte Lubberink | Consultant opschaling (begeleiding Rick) | R.ScholteLubberink@tools4ever.com | Betrekken na pilotfase |
+| Remco Houthuijzen | Consultant opschaling (begeleiding Rick) | r.houthuijzen@tools4ever.com | Betrekken na pilotfase; auteur Reference Cleaner manual |
+| André Boonstra | Consultant opschaling (begeleiding Rick) | a.boonstra@tools4ever.com | Betrekken na pilotfase |
+| Jeroen Smit | Business Consultant | J.Smit@tools4ever.com | Autorisatiematrix (indien wijziging nodig) |
+| Ron Kuper | Manager | R.Kuper@tools4ever.com | Beslissingen billing/budget |
+| Ronald Kamerbeek | Manager delivery | R.Kamerbeek@tools4ever.com | Billing-beslissing vervolgklanten |
+| Farid Ouachour | Manager sales | F.Ouachour@tools4ever.com | Billing-beslissing vervolgklanten |
 
 ---
 
@@ -80,7 +80,7 @@ De migratie is **100% technisch** — geen functionele wijzigingen, geen verbete
 De volgende stappen kunnen niet volledig op papier worden vastgesteld zonder ze te hebben uitgevoerd. Voer daarom een volledige testrun uit op een eigen testomgeving vóórdat klant 1 ingepland wordt.
 
 - [ ] Productieomgeving van een testklant nabouwen op eigen testomgeving
-- [ ] Controleer of Rudolf de connector scripts al heeft bijgewerkt (vereiste vóór Reference Cleaner)
+- [ ] Controleer of Rudolf Amersfoort de connector scripts al heeft bijgewerkt (vereiste vóór Reference Cleaner)
 - [ ] Volledig doorlopen van Fase 4 (migratiestappen testomgeving) — noteer elke exacte scriptnaam, klik en volgorde
 - [ ] **Beantwoord open beslispunt:** kan de Reference Cleaner draaien op v1-scripts (pre-check vóór migratie werkt dan als volledige run), of heeft hij v2-scripts nodig? → volgorde definitief vastleggen
 - [ ] **Beantwoord open vraag:** werkt de Reference Cleaner voor Nedap (array of objects)? → antwoord Remco Houthuijzen verwerken
@@ -254,7 +254,7 @@ Overweeg opnieuw opbouwen als één of meer van onderstaande punten van toepassi
 7. Klik **Stop cleaner**
 
 > Als de Cleaner start en velden toont → geen blocking issues, je kunt door met de migratie.  
-> Als de Cleaner niet start of een fout geeft → stop, overleg met Rudolf. Ga niet verder.
+> Als de Cleaner niet start of een fout geeft → stop, overleg met Rudolf Amersfoort. Ga niet verder.
 
 ---
 
@@ -417,11 +417,11 @@ if (-not [string]::IsNullOrEmpty($($actionContext.References.Account))) {
 
 ### Stap 5 — Reference Cleaner (alleen voor Roles)
 
-> 📋 **Gevalideerde procedure:** deze volgorde (migratie eerst, Reference Cleaner daarna) is in de praktijk uitgevoerd door Rudolf en Mauro.
+> 📋 **Gevalideerde procedure:** deze volgorde (migratie eerst, Reference Cleaner daarna) is in de praktijk uitgevoerd door Rudolf Amersfoort en Mauro.
 
 > ❓ **Open beslispunt — volgorde Reference Cleaner:** als de Reference Cleaner ook op v1-scripts kan draaien, is het logischer om hem vóór de migratie uit te voeren (schonere volgorde, minder risico halverwege vast te lopen). Als hij de v2-scripts nodig heeft, moet hij ná de migratie. Remco Houthuijzen (auteur Reference Cleaner manual) is gevraagd om dit te verduidelijken. Definitieve volgorde wordt vastgesteld tijdens de pilot op 18 mei bij Vughterstede. **Pas dit document daarna aan.**
 
-> ⚠️ **Open vraag:** Rick van den Dijssel denkt dat de Reference Cleaner mogelijk niet werkt voor Nedap (array of objects). Rudolf heeft het getest en zegt van wel. Rick Jongbloed onderzoekt dit nog. **Bij twijfel: overleg met Rudolf vóór je verdergaat.**
+> ⚠️ **Open vraag:** Rick van den Dijssel denkt dat de Reference Cleaner mogelijk niet werkt voor Nedap (array of objects). Rudolf Amersfoort heeft het getest en zegt van wel. Rick Jongbloed onderzoekt dit nog. **Bij twijfel: overleg met Rudolf Amersfoort vóór je verdergaat.**
 
 > *Waarom:* In v1 sloegen de Roles-permissies meerdere velden op in de Identification, waaronder de mutabele velden `DisplayName` en `DisplayNameFull`. Als deze niet verwijderd worden uit de database, falen alle permissiescripts, mislukt de subpermissie-berekening, kloppen datastorage-ID's niet, en toont de audit log onjuiste wijzigingen.
 
@@ -450,7 +450,7 @@ Identification = @{
 
 > Terwijl de Cleaner actief is: business rules, target systems, enforcements, entitlement import en reconciliation zijn tijdelijk uitgeschakeld.
 
-> ⚠️ De Cleaner maakt bij elke start een backup. Herstarten **overschrijft** de backup. Bij fouten: **niet herstarten**, Rudolf bellen.
+> ⚠️ De Cleaner maakt bij elke start een backup. Herstarten **overschrijft** de backup. Bij fouten: **niet herstarten**, Rudolf Amersfoort bellen.
 
 #### 5c — Roles Permission Configuration opruimen
 
@@ -468,7 +468,7 @@ Klik op **Stop cleaner** rechts bovenaan.
 
 #### 5e — Bij fouten
 
-Bij fouten: **niet herstarten** (dit overschrijft de backup). Noteer de foutmelding en neem contact op met Rudolf.
+Bij fouten: **niet herstarten** (dit overschrijft de backup). Noteer de foutmelding en neem contact op met Rudolf Amersfoort.
 
 ✅ Gate: Reference Cleaner succesvol gestopt, Roles-referenties gecorrigeerd → ga door naar stap 6.
 
@@ -586,7 +586,7 @@ Als een klant na de migratie zelf een nieuwe rol aanmaakt, krijgt die rol niet a
 
 **Afgesproken aanpak (afstemming Rick Jongbloed + Rudolf):**
 
-- Rudolf voegt de mapping toe in het migratiescript (connector-side)
+- Rudolf Amersfoort voegt de mapping toe in het migratiescript (connector-side)
 - Wij voegen **geen `list_entitlements`-script** toe
 - De **statische entitlement-mapping blijft actief**
 - Onbekende entitlement-namen vallen terug op `default_scope` (defensief gedrag)
@@ -596,10 +596,10 @@ Als een klant na de migratie zelf een nieuwe rol aanmaakt, krijgt die rol niet a
 - [ ] Zijn alle statische entitlements nog aanwezig?
 - [ ] Zijn er entitlements op `default_scope` terechtgekomen die dat eigenlijk niet zouden moeten?
   - Zo ja: controleer of de naam in de statische mapping klopt met de verwachte naam
-  - Escaleer naar Rudolf als de mapping ontbreekt
+  - Escaleer naar Rudolf Amersfoort als de mapping ontbreekt
 - [ ] Geen actief `list_entitlements`-script (tenzij dit voor deze klant expliciet gewenst is)
 
-> **Voorstel ter bespreking met het team:** deze aanpak (statische mapping, geen `list_entitlements`, mapping in migratiescript door Rudolf) is het voorstel van Rick Jongbloed. Dit moet besproken en gevalideerd worden met KaHo, Jerry, Rutger en André vóór opschaling.
+> **Voorstel ter bespreking met het team:** deze aanpak (statische mapping, geen `list_entitlements`, mapping in migratiescript door Rudolf) is het voorstel van Rick Jongbloed. Dit moet besproken en gevalideerd worden met KaHo Man, Jerry Breek, Rutger Scholte Lubberink en André Boonstra vóór opschaling.
 
 ---
 
@@ -607,15 +607,15 @@ Als een klant na de migratie zelf een nieuwe rol aanmaakt, krijgt die rol niet a
 
 | Symptoom | Eerste stap | Escalatie naar |
 |----------|-------------|----------------|
-| Reference Cleaner faalt | Foutmelding lezen, **niet herstarten** (backup wordt overschreven), Rudolf bellen | Rudolf |
-| Reference Cleaner toont geen velden om te verwijderen | Scripts zijn nog niet bijgewerkt (DisplayName/DisplayNameFull nog aanwezig) → controleer permissions.ps1 | Rudolf |
+| Reference Cleaner faalt | Foutmelding lezen, **niet herstarten** (backup wordt overschreven), Rudolf Amersfoort bellen | Rudolf Amersfoort |
+| Reference Cleaner toont geen velden om te verwijderen | Scripts zijn nog niet bijgewerkt (DisplayName/DisplayNameFull nog aanwezig) → controleer permissions.ps1 | Rudolf Amersfoort |
 | Wachtacties niet op te lossen | Klant raadplegen over oorsprong taak | Rick Jongbloed |
-| Force update / enforcement geeft errors | Script opnieuw draaien (is idempotent) | Rudolf bij aanhoudend falen |
-| Permissiescripts falen na migratie (alle) | Reference Cleaner is niet correct uitgevoerd — DisplayName/DisplayNameFull nog aanwezig in referenties | Rudolf |
-| Subpermissie-berekening mislukt | Zelfde oorzaak als boven — Reference Cleaner opnieuw uitvoeren | Rudolf |
-| DefaultScope-permissie kan niet worden ingetrokken | Force update DefaultScope is niet uitgevoerd → datastorage mist de permissies | Rudolf |
-| Audit log toont onjuiste permissiewijzigingen | Reference Cleaner niet correct uitgevoerd | Rudolf |
-| Accountreferentie-fout na migratie | ARef fix-code ontbreekt in `update.ps1`, of Update All Accounts nog niet uitgevoerd | Rudolf |
+| Force update / enforcement geeft errors | Script opnieuw draaien (is idempotent) | Rudolf Amersfoort bij aanhoudend falen |
+| Permissiescripts falen na migratie (alle) | Reference Cleaner is niet correct uitgevoerd — DisplayName/DisplayNameFull nog aanwezig in referenties | Rudolf Amersfoort |
+| Subpermissie-berekening mislukt | Zelfde oorzaak als boven — Reference Cleaner opnieuw uitvoeren | Rudolf Amersfoort |
+| DefaultScope-permissie kan niet worden ingetrokken | Force update DefaultScope is niet uitgevoerd → datastorage mist de permissies | Rudolf Amersfoort |
+| Audit log toont onjuiste permissiewijzigingen | Reference Cleaner niet correct uitgevoerd | Rudolf Amersfoort |
+| Accountreferentie-fout na migratie | ARef fix-code ontbreekt in `update.ps1`, of Update All Accounts nog niet uitgevoerd | Rudolf Amersfoort |
 | Connector schrijft naar verkeerde omgeving | `baseUrl` in configuration.json controleren: staging vs. production | Consultant (self-fix) |
 | Certificaatfout | Controleer of certificaat v7 actief is in Nedap Podium en door klant goedgekeurd | Remco den Elzen (support) |
 | Mapping-CSV geeft kolomfout | Kolomnamen controleren: `HelloIDPrimaryLookupKey`, `HelloIDSecondaryLookupKey`, `NedapLocationIds`/`NedapTeamIds` | Consultant (self-fix) |
@@ -626,12 +626,12 @@ Als een klant na de migratie zelf een nieuwe rol aanmaakt, krijgt die rol niet a
 
 | Naam | Rol | Contact |
 |------|-----|---------|
-| Rick Jongbloed | Projectleider, eindverantwoordelijke pilotfase | Intern |
-| Rudolf | Connector-ontwikkelaar, technische vragen | Via Teams/intern |
-| Rick van den Dijssel | Feature flag, product owner | Via Teams/intern |
-| Remco den Elzen | Topdesk, support, certificaatupgrade Nedap Podium | Via Topdesk |
-| Jeroen Smit | Autorisatiematrix (indien aanpassing nodig) | Via Teams/intern |
-| Ron | Escalatie management / billing | Via Teams/intern |
+| Rick Jongbloed | Projectleider, eindverantwoordelijke pilotfase | R.Jongbloed@tools4ever.com |
+| Rudolf Amersfoort | Connector-ontwikkelaar, technische vragen | r.amersfoort@tools4ever.com |
+| Rick van den Dijssel | Feature flag, product owner | R.vdDijssel@tools4ever.com |
+| Remco den Elzen | Topdesk, support, certificaatupgrade Nedap Podium | R.denElzen@tools4ever.com |
+| Jeroen Smit | Autorisatiematrix (indien aanpassing nodig) | J.Smit@tools4ever.com |
+| Ron Kuper | Escalatie management / billing | R.Kuper@tools4ever.com |
 
 ---
 
@@ -642,10 +642,4 @@ Als een klant na de migratie zelf een nieuwe rol aanmaakt, krijgt die rol niet a
 | 0.1 | 2026-05-01 | Eerste opzet op basis van gesprek Rudolf + pilotplanning | Rick Jongbloed / Claude |
 | 0.2 | 2026-05-01 | Reference Cleaner stappen uitgewerkt op basis van officiële manual v1.2 | Rick Jongbloed / Claude |
 | 0.3 | 2026-05-01 | Migratiestappen volledig herschreven op basis van Migration.md in connector-repo (branch Nedap-new-permissions-api-standard); correcte volgorde, ARef-fix, DefaultScope datastorage, configuration.json parameters | Rick Jongbloed / Claude |
-| 0.4 | 2026-05-01 | Volgorde gecorrigeerd: Reference Cleaner verplaatst naar vóór [Migrate] (was erna per draft Rudolf); wachtacties pre-assessment rapportage toegevoegd | Rick Jongbloed / Claude |
-| 0.5 | 2026-05-01 | Volgorde teruggedraaid naar Rudolf's gevalideerde procedure (migratie eerst, Reference Cleaner daarna); open vraag Reference Cleaner + Nedap array-of-objects toegevoegd; rapportage wachtacties gemarkeerd als niet haalbaar pilotfase; Remco Houthuijzen toegevoegd als consultant | Rick Jongbloed / Claude |
-| 0.6 | 2026-05-01 | Rollback-waarschuwing toegevoegd; RC pre-check als verplichte stap vóór migratie; script backup stap 0; maintenance window communicatie aan klant; mapping CSV noot (70%/30%); Rick Nieuweveen, André, Ronald, Farid toegevoegd aan rollen | Rick Jongbloed / Claude |
-
----
-
-*Dit document wordt opgeslagen in de GitHub-repository: [NedapUsersV2migration](https://github.com/Rick-Jongbloed/NedapUsersV2migration)*
+| 0.4 | 2026-05-01 | Volgorde gecorrigeerd: Reference Cleaner verplaatst naar vóór [Migrate] (was erna per draft Rudolf); wachtacties pre-ass
