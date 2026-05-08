@@ -236,29 +236,45 @@ Overweeg opnieuw opbouwen als één of meer van onderstaande punten van toepassi
 - [ ] Feature flag actief (Rick van den Dijssel bevestigd)
 - [ ] Testomgeving is actueel (recent ververst door klant)
 - [ ] Certificaat testomgeving geldig + versie v7
-- [ ] Nieuwe v2 scripts klaarstaan (van Rudolf / connector-repo)
-- [ ] Nieuwe `configuration.json` klaarstaat (v2 versie)
+- [ ] Nieuwe v2 scripts klaarstaan (van Rudolf Amersfoort / connector-repo)
 - [ ] Klantcontact beschikbaar
-- [ ] Huidige v1 scripts gebackupt (zie stap 0)
+- [ ] Huidige v1 scripts gebackupt (zie Stap 0a)
+- [ ] Maatwerk check uitgevoerd: klant-specifieke aanpassingen in v1 geïdentificeerd (zie Stap 0b)
 
 ### Reference Cleaner pre-check (vóór de migratie)
 
-> 💡 **Doel:** controleren of de Reference Cleaner straks werkt en of er blocking issues zijn — zonder al iets te wijzigen. Dit geeft zekerheid vóórdat je aan de migratie begint die niet meer teruggedraaid kan worden.
+> 💡 **Doel:** controleren of er blocking taken zijn die de migratie zouden blokkeren. Dit is een GO/NOGO check vóórdat je de onomkeerbare migratiestap start.
+
+**Stap 1: Cleaner starten en controleren**
 
 1. Open de Reference Cleaner: `https://[klantnaam].helloid.com/provisioning/#/reference-cleaner/overview`
 2. Klik **Start cleaner**
 3. Selecteer de **Roles** Permission Configuration
 4. Klik **Determine differences**
-5. Bekijk de **Reference details** — staan er velden klaar om te verwijderen? Werkt het?
-6. Klik **NIET** op Remove fields
-7. Klik **Stop cleaner**
+5. Bekijk de **Reference details**
 
-> Als de Cleaner start en velden toont → geen blocking issues, je kunt door met de migratie.  
+**Stap 2: GO/NOGO beoordelen**
+
+| Uitkomst | Actie |
+|----------|-------|
+| Geen blocking taken | ✅ **GO** — ga door naar Stap 3 hieronder |
+| Blocking taken aanwezig | ⛔ **NOGO** — los de taken op met de klant (zie Fase 2), doe daarna de pre-check opnieuw |
+
+> ⚠️ Klik **NIET** op **Remove fields** tijdens de pre-check. Dat is voor de echte Reference Cleaner run ná de migratie (Stap 4).
+
 > Als de Cleaner niet start of een fout geeft → stop, overleg met Rudolf Amersfoort. Ga niet verder.
+
+**Stap 3: Reference Cleaner sluiten**
+
+Klik **Stop cleaner** rechts bovenaan.
+
+> ⚠️ Browsertab sluiten stopt de Cleaner **niet**. Expliciet stoppen is verplicht.
 
 ---
 
-### Stap 0 — Scripts backuppen (baseline)
+### Stap 0 — Backup en maatwerk check
+
+#### 0a — Scripts backuppen (baseline)
 
 Sla alle huidige v1-scripts op vóórdat je ze vervangt. Dit is de basis voor een vergelijking achteraf.
 
@@ -268,7 +284,16 @@ Sla alle huidige v1-scripts op vóórdat je ze vervangt. Dit is de basis voor ee
 
 > 💡 **Toekomstig idee:** tooling bouwen die automatisch een diff maakt tussen de v1-baseline en de nieuwe v2-scripts en per wijziging advies geeft. Nog niet beschikbaar — handmatig opslaan voor nu.
 
-✅ Backup aanwezig → ga door naar stap 1.
+#### 0b — Maatwerk check
+
+De migratiewizard maakt automatisch een **readonly backup** van de v1-inrichting (zichtbaar in de connector na migratie). Maar controleer vóór de migratie al of er klant-specifiek maatwerk in de v1-connector zit.
+
+- [ ] Bekijk alle scripts in de v1-connector: zijn er aanpassingen gedaan die niet in de standaard v2-repo zitten?
+- [ ] Noteer afwijkingen en bespreek met Rick Jongbloed of Rudolf Amersfoort of deze meegenomen moeten worden in de v2-versie
+
+> ⚠️ Na de migratie is de v1-inrichting als readonly backup inzichtelijk in de connector. Je kunt er dan nog in terugkijken, maar niet meer bewerken.
+
+✅ Backup aanwezig, maatwerk geïdentificeerd → ga door naar Stap 1.
 
 ---
 
@@ -286,19 +311,34 @@ Voer vóór de migratie een volledige force update uit zodat alle accounts en pe
 
 ---
 
-### Stap 2 — [Migrate]: HelloID connector migreren naar v2
+### Stap 2 — V2 migratie uitvoeren (HelloID migration wizard)
 
-> ✏️ `[TODO: exacte stappen voor het uitvoeren van de HelloID-migratie (connector upgrade v1 → v2) invullen na testrun. Dit is de stap waarmee HelloID de connector formeel omzet naar PowerShell v2-formaat.]`
+> ⚠️ **Geen rollback.** Zodra je "Confirm" klikt is de migratie onomkeerbaar. Zorg dat alle pre-flight checks groen zijn.
+
+> 💡 De migratiewizard maakt automatisch een **readonly backup** van de v1-inrichting (zichtbaar in de connector na migratie).
+
+1. Open de connector in HelloID
+2. Ga naar tab **General**
+3. Klik **Migrate system**
+4. Bevestig de melding: *"Are you sure you want to start migrating the system?"* → klik **Confirm**
+
+> ⛔ Vanaf dit moment is de migratie gestart en niet meer terug te draaien.
 
 ---
 
-### Stap 4 — Connector-scripts vervangen door v2-versies
+#### Tab Fields
 
-Na de migratie moeten alle scripts in de connector overschreven worden met de v2-versies uit de connector-repository.
+- [ ] Field mapping script plaatsen (uit v2 connector-repo)
 
-#### 4a — Configuration.json vervangen
+---
 
-De v2 connector heeft een nieuw `configuration.json` met andere parameters. **Alle velden opnieuw invullen.**
+#### Tab Account
+
+- [ ] Account Create script vervangen
+- [ ] Account Update script vervangen *(let op: ARef-fix toevoegen ná de wizard — zie Stap 3)*
+- [ ] Account Delete script vervangen
+- [ ] Account Data Import script vervangen
+- [ ] Custom connector configuration (configuration.json) vervangen — **alle velden opnieuw invullen**
 
 | Parameter | Omschrijving | Voorbeeld/opties |
 |-----------|-------------|-----------------|
@@ -316,33 +356,49 @@ De v2 connector heeft een nieuw `configuration.json` met andere parameters. **Al
 | `daysBeforeContractStartDate` | Dagen vóór contractstart (bij bovenstaande optie) | `0` |
 | `daysAfterContractEndDate` | Dagen ná contracteinde (bij bovenstaande optie) | `0` |
 
-> ⚠️ **Omgeving instelling:** zet `baseUrl` op testomgeving (`https://api-staging.ons.io`) voor dag 1, en op productie (`https://api.ons.io`) voor dag 2.
+> ⚠️ **Omgeving:** zet `baseUrl` op testomgeving (`https://api-staging.ons.io`) voor dag 1, en op productie (`https://api.ons.io`) voor dag 2.
 
-#### 4b — Scripts vervangen
+---
 
-Overschrijf de volgende scripts met de v2-versies uit de connector-repo:
+#### Tab Permissions
 
-- [ ] `create.ps1`
-- [ ] `update.ps1` *(let op: accountreferentie-fix toevoegen in stap 5)*
-- [ ] `delete.ps1`
-- [ ] `import.ps1`
-- [ ] `permissions/Roles/permissions.ps1`
-- [ ] `permissions/Roles/subPermissions.ps1`
-- [ ] `permissions/defaultscope/permissions.ps1`
-- [ ] `permissions/defaultscope/subPermissions.ps1`
-- [ ] `resources/resources.ps1`
+**Default scope permissie-definitie:**
 
-#### 4c — Account Import script toevoegen
+- [ ] Static permission: laat staan zoals het is
+- [ ] Omzetten naar **Handle all actions script**
+- [ ] Subpermission script plaatsen
+- [ ] Toggle **Context Data storage** aanzetten
 
-De v2-connector vereist een Account Import script dat in v1 niet bestond.
+**Roles permissie-definitie:**
 
-- [ ] Account Import script toevoegen (script uit v2 connector-repo)
+- [ ] Import permission script vervangen
+- [ ] Handle all actions script vervangen
 
-#### 4d — Mapping-CSVs controleren op nieuwe headers
+---
 
-De mapping-CSVs hebben in v2 nieuwe kolomnamen voor DefaultScope en Roles.
+#### Tab Resource
 
-Vereiste kolomnamen:
+- [ ] Cache script vervangen (resources.ps1)
+
+---
+
+#### Tab Correlation
+
+Configureer de correlatie conform de [connector ReadMe](https://github.com/Tools4everBV/HelloID-Conn-Prov-Target-NedapOns-Users-ReadMe/tree/Nedap-new-permissions-api-standard#correlation-configuration):
+
+| Setting | Value |
+|---------|-------|
+| Enable correlation | `True` |
+| Person correlation field | `ExternalId` |
+| Account correlation field | `_outputInfo.externalId` |
+
+- [ ] Correlatie geconfigureerd en opgeslagen
+
+---
+
+#### Mapping-CSVs controleren op nieuwe headers
+
+De mapping-CSVs hebben in v2 nieuwe kolomnamen.
 
 | CSV | Verplichte kolommen |
 |-----|-------------------|
@@ -350,19 +406,19 @@ Vereiste kolomnamen:
 | `mappingTeams` | `HelloIDPrimaryLookupKey`, `HelloIDSecondaryLookupKey`, `NedapTeamIds` |
 
 - [ ] Controleer de bestaande klant-CSVs: kloppen de kolomnamen?
-- [ ] Zo niet: excel2csv script aanpassen met `Select-Object` en een alias voor de kolomnamen om ze automatisch te hernoemen
+- [ ] Zo niet: excel2csv script aanpassen met `Select-Object` en een alias voor de kolomnamen
 
 > **Verwachting:** ~70% van de klanten heeft de kolomnamen al correct staan. Voor de overige 30% is de excel2csv aanpassing voldoende.
 
-✅ Gate: alle scripts en configuratie bijgewerkt → ga door naar stap 5.
+✅ Gate: wizard volledig doorlopen, alle scripts geplaatst, correlatie geconfigureerd → ga door naar Stap 3.
 
 ---
 
-### Stap 5 — Accountreferentie (ARef) fixen
+### Stap 3 — Accountreferentie (ARef) fixen
 
-Na de scriptvervanging moet de accountreferentie gecorrigeerd worden. In v1 werd de referentie opgeslagen als een array van objecten; v2 verwacht een ander formaat.
+Na de migration wizard moet de accountreferentie gecorrigeerd worden. In v1 werd de referentie opgeslagen als een array van objecten; v2 verwacht een ander formaat.
 
-#### 5a — Fix-code toevoegen aan `update.ps1`
+#### 3a — Fix-code toevoegen aan `update.ps1`
 
 Voeg onderstaande code toe aan het begin van de `update.ps1` (accountreferentie-conversie):
 
@@ -383,24 +439,24 @@ if (-not [string]::IsNullOrEmpty($($actionContext.References.Account))) {
 }
 ```
 
-#### 5b — Update All Accounts uitvoeren
+#### 3b — Update All Accounts uitvoeren
 
 1. Voer "Update All Accounts" uit `[TODO: exacte locatie/naam in HelloID invullen]`
 2. Wacht op afronding
 3. Controleer output op errors
 
-#### 5c — Enforcement uitvoeren
+#### 3c — Enforcement uitvoeren
 
 1. Voer een enforcement run uit
 2. Controleer dat de run succesvol afrondt
 
-#### 5d — Accountreferentie testen
+#### 3d — Accountreferentie testen
 
 1. Open een testpersoon in HelloID
 2. Bekijk de permissions via Preview/DryRun
 3. Controleer dat de accountreferentie correct is (format: `IdentificationNo → { Uuid, IdentificationNo }`)
 
-#### 5e — DefaultScope referentie controleren
+#### 3e — DefaultScope referentie controleren
 
 > ⚠️ In v1 werd de referentie van de DefaultScope-permissie niet gebruikt. In v2 **wordt deze wél gebruikt** en moet de naam exact `DefaultScope` zijn (voor de legacy-permissie).
 
@@ -411,11 +467,11 @@ if (-not [string]::IsNullOrEmpty($($actionContext.References.Account))) {
   - `DefaultScopeAllClients`
   - `DefaultScopeAllEmployees`
 
-✅ Gate: accountreferentie correct, enforcement succesvol → ga door naar stap 5.
+✅ Gate: accountreferentie correct, enforcement succesvol → ga door naar Stap 4.
 
 ---
 
-### Stap 5 — Reference Cleaner (alleen voor Roles)
+### Stap 4 — Reference Cleaner (alleen voor Roles)
 
 > 📋 **Gevalideerde procedure:** deze volgorde (migratie eerst, Reference Cleaner daarna) is in de praktijk uitgevoerd door Rudolf Amersfoort en Mauro.
 
@@ -425,7 +481,7 @@ if (-not [string]::IsNullOrEmpty($($actionContext.References.Account))) {
 
 > *Waarom:* In v1 sloegen de Roles-permissies meerdere velden op in de Identification, waaronder de mutabele velden `DisplayName` en `DisplayNameFull`. Als deze niet verwijderd worden uit de database, falen alle permissiescripts, mislukt de subpermissie-berekening, kloppen datastorage-ID's niet, en toont de audit log onjuiste wijzigingen.
 
-#### 5a — Roles permissions.ps1 controleren
+#### 4a — Roles permissions.ps1 controleren
 
 Verifieer dat `DisplayName` en `DisplayNameFull` **niet meer aanwezig** zijn in het `Identification`-object van `permissions/Roles/permissions.ps1`. De v2-versie uit de repo heeft dit al correct:
 
@@ -441,7 +497,7 @@ Identification = @{
 
 - [ ] Bevestigd: `DisplayName` en `DisplayNameFull` niet aanwezig in actieve Roles permissions.ps1
 
-#### 5b — Reference Cleaner starten
+#### 4b — Reference Cleaner starten
 
 1. Log in op de HelloID-omgeving van de klant
 2. Open in een **tweede browsertab**:
@@ -452,7 +508,7 @@ Identification = @{
 
 > ⚠️ De Cleaner maakt bij elke start een backup. Herstarten **overschrijft** de backup. Bij fouten: **niet herstarten**, Rudolf Amersfoort bellen.
 
-#### 5c — Roles Permission Configuration opruimen
+#### 4c — Roles Permission Configuration opruimen
 
 1. Selecteer de **Roles** Permission Configuration (linkerpaneel)
 2. Klik op **Determine differences**
@@ -460,21 +516,21 @@ Identification = @{
 4. Klik op **Remove fields**
 5. Controleer de **History** rechts — actie gelogd?
 
-#### 5d — Reference Cleaner stoppen
+#### 4d — Reference Cleaner stoppen
 
 Klik op **Stop cleaner** rechts bovenaan.
 
 > ⚠️ Browsertab sluiten stopt de Cleaner **niet**. Explicit stoppen verplicht.
 
-#### 5e — Bij fouten
+#### 4e — Bij fouten
 
 Bij fouten: **niet herstarten** (dit overschrijft de backup). Noteer de foutmelding en neem contact op met Rudolf Amersfoort.
 
-✅ Gate: Reference Cleaner succesvol gestopt, Roles-referenties gecorrigeerd → ga door naar stap 6.
+✅ Gate: Reference Cleaner succesvol gestopt, Roles-referenties gecorrigeerd → ga door naar Stap 5.
 
 ---
 
-### Stap 6 — DefaultScope: force update permissies
+### Stap 5 — DefaultScope: force update permissies
 
 > *Waarom:* De DefaultScope-permissies moeten opgeslagen worden in de datastorage van HelloID. Als dit niet gedaan wordt, kunnen DefaultScope-permissies bij een toekomstige revoke **niet** worden ingetrokken, omdat ze niet in de datastorage staan.
 
@@ -482,11 +538,11 @@ Bij fouten: **niet herstarten** (dit overschrijft de backup). Noteer de foutmeld
 2. Wacht op afronding
 3. Controleer: permissies zijn correct opgeslagen in datastorage
 
-✅ Gate: DefaultScope permissies opgeslagen in datastorage → ga door naar stap 7 (validatie).
+✅ Gate: DefaultScope permissies opgeslagen in datastorage → ga door naar Stap 6 (validatie).
 
 ---
 
-### Stap 7 — Validatie testomgeving
+### Stap 6 — Validatie testomgeving
 
 #### Technische validatie (door consultant)
 
@@ -536,11 +592,11 @@ Bij fouten: **niet herstarten** (dit overschrijft de backup). Noteer de foutmeld
 
 Voer dezelfde stappen 1 t/m 6 uit zoals beschreven in Fase 4, nu op de **productieomgeving**.
 
-> ⚠️ Zet bij stap 3a de `baseUrl` op **productie**: `https://api.ons.io`
+> ⚠️ Zet in Stap 2 (Tab Account → configuration.json) de `baseUrl` op **productie**: `https://api.ons.io`
 
 ---
 
-### Stap 4 — Validatie productie
+### Stap 6 — Validatie productie
 
 #### Technische validatie (door consultant)
 
@@ -556,7 +612,7 @@ Voer dezelfde stappen 1 t/m 6 uit zoals beschreven in Fase 4, nu op de **product
 
 ---
 
-### Stap 5 — Afsluiting
+### Stap 7 — Afsluiting
 
 - [ ] Migratie afsluiten in Topdesk (melden aan Remco voor het major ticket)
 - [ ] Bijzonderheden en afwijkingen documenteren in klantdossier
@@ -616,30 +672,4 @@ Als een klant na de migratie zelf een nieuwe rol aanmaakt, krijgt die rol niet a
 | DefaultScope-permissie kan niet worden ingetrokken | Force update DefaultScope is niet uitgevoerd → datastorage mist de permissies | Rudolf Amersfoort |
 | Audit log toont onjuiste permissiewijzigingen | Reference Cleaner niet correct uitgevoerd | Rudolf Amersfoort |
 | Accountreferentie-fout na migratie | ARef fix-code ontbreekt in `update.ps1`, of Update All Accounts nog niet uitgevoerd | Rudolf Amersfoort |
-| Connector schrijft naar verkeerde omgeving | `baseUrl` in configuration.json controleren: staging vs. production | Consultant (self-fix) |
-| Certificaatfout | Controleer of certificaat v7 actief is in Nedap Podium en door klant goedgekeurd | Remco den Elzen (support) |
-| Mapping-CSV geeft kolomfout | Kolomnamen controleren: `HelloIDPrimaryLookupKey`, `HelloIDSecondaryLookupKey`, `NedapLocationIds`/`NedapTeamIds` | Consultant (self-fix) |
-
----
-
-## 11. Bijlage C — Contacten en escalatie
-
-| Naam | Rol | Contact |
-|------|-----|---------|
-| Rick Jongbloed | Projectleider, eindverantwoordelijke pilotfase | R.Jongbloed@tools4ever.com |
-| Rudolf Amersfoort | Connector-ontwikkelaar, technische vragen | r.amersfoort@tools4ever.com |
-| Rick van den Dijssel | Feature flag, product owner | R.vdDijssel@tools4ever.com |
-| Remco den Elzen | Topdesk, support, certificaatupgrade Nedap Podium | R.denElzen@tools4ever.com |
-| Jeroen Smit | Autorisatiematrix (indien aanpassing nodig) | J.Smit@tools4ever.com |
-| Ron Kuper | Escalatie management / billing | R.Kuper@tools4ever.com |
-
----
-
-## Wijzigingslog
-
-| Versie | Datum | Wijziging | Door |
-|--------|-------|-----------|------|
-| 0.1 | 2026-05-01 | Eerste opzet op basis van gesprek Rudolf + pilotplanning | Rick Jongbloed / Claude |
-| 0.2 | 2026-05-01 | Reference Cleaner stappen uitgewerkt op basis van officiële manual v1.2 | Rick Jongbloed / Claude |
-| 0.3 | 2026-05-01 | Migratiestappen volledig herschreven op basis van Migration.md in connector-repo (branch Nedap-new-permissions-api-standard); correcte volgorde, ARef-fix, DefaultScope datastorage, configuration.json parameters | Rick Jongbloed / Claude |
-| 0.4 | 2026-05-01 | Volgorde gecorrigeerd: Reference Cleaner verplaatst naar vóór [Migrate] (was erna per draft Rudolf); wachtacties pre-ass
+| Connector schrijft naar verkeerde omgeving | `baseUrl` in configuration.json con
