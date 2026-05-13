@@ -364,10 +364,13 @@ Voer vóór de migratie een volledige force update uit zodat alle accounts en pe
 
 **Default scope permissie-definitie:**
 
-- [ ] Static permission: laat staan zoals het is
-- [ ] Omzetten naar **Handle all actions script**
-- [ ] Subpermission script plaatsen
+> ❓ De exacte stappen hier hangen af van de gekozen DefaultScope-aanpak (Optie A, B of C). Zie **Bijlage A** voor de volledige uitleg per optie. Voer de onderstaande stappen uit conform de gekozen optie.
+
+- [ ] Optie A/B: bestaande permissiedefinitie verwijderen en nieuw permission import script plaatsen
+- [ ] Optie A/B: Omzetten naar **Handle all actions script**
+- [ ] Subpermission script plaatsen (bij Optie C: script met fallback logica)
 - [ ] Toggle **Context Data storage** aanzetten
+- [ ] Optie A/B: business rules bijwerken (zie Bijlage A)
 
 **Roles permissie-definitie:**
 
@@ -623,16 +626,75 @@ Voer dezelfde stappen 1 t/m 6 uit zoals beschreven in Fase 4, nu op de **product
 
 ## 9. Bijlage A — Entitlement conversie
 
-### Standaardbereik (default scope) — kritieke gedragswijziging
+### Standaardbereik (default scope) — gedragswijziging en migratieaanpak
 
-**v1:** standaardbereik werd automatisch toegepast op roluitgifte (alle medewerkers en/of alle cliënten).  
-**v2:** standaardbereik geldt **alleen nog voor Cockpit/scope-settings**. Het wordt **niet meer** toegepast op roluitgifte.
+**v1:** één DefaultScope-permissie, uitgedeeld via één entitlement (my locations + my teams gecombineerd).  
+**v2:** DefaultScope wordt gesplitst in twee afzonderlijke permissies: *DefaultScope my locations* en *DefaultScope my teams*.
+
+Een **'DefaultScope (legacy)'** permissie is beschikbaar in het nieuwe permission import script en combineert beide — vergelijkbaar met de huidige werkwijze. De permission reference wijzigt echter sowieso (naamgeving in v2 wijkt af van v1), waardoor business rules bij de meeste opties alsnog moeten worden aangepast.
 
 **Backward compatibiliteit via de migratietool:**  
-De migratietool voegt `all_employees` en `all_clients` direct toe aan de betreffende rollen, zodat het bestaande gedrag bewaard blijft. Dit hoef je als consultant niet handmatig te doen.
+De migratietool voegt `all_employees` en `all_clients` direct toe aan de betreffende rollen, zodat roluitgifte ongewijzigd blijft. Dit hoef je niet handmatig te doen.
 
 **Let op voor handmatig aangemaakte rollen na de migratie:**  
-Als een klant na de migratie zelf een nieuwe rol aanmaakt, krijgt die rol niet automatisch het standaardbereik. Dit is een bewuste gedragswijziging in v2. Informeer de klant hier proactief over.
+Nieuwe rollen krijgen niet automatisch het standaardbereik. Informeer de klant hier proactief over.
+
+---
+
+#### ❓ Open beslissing: migratieaanpak DefaultScope (optie A / B / C)
+
+> **Status: beslissing nog open.** Rudolf Amersfoort moet haalbaarheid van Optie C bevestigen. Pas de stappen hieronder toe op basis van de gekozen optie. Zie `DefaultScope_Beslisdocument.docx` voor de volledige onderbouwing.
+
+| Optie | Aanpak | BR-wijzigingen nodig | Connector effort | Toekomstbestendig |
+|-------|--------|----------------------|-----------------|-------------------|
+| A | Legacy entitlement gebruiken | Ja — 1 entitlement vervangen per BR | Geen | Beperkt |
+| B | Meteen twee nieuwe entitlements | Ja — 2 entitlements koppelen per BR | Minimaal | Ja |
+| C | Fallback in subpermissie script | **Nee** | Development nodig bij connector team | Deels |
+
+**Voorkeur Rick Jongbloed:** C (indien haalbaar), anders B. Optie A biedt geen realistisch voordeel ten opzichte van B.
+
+---
+
+#### Stappen Optie A — Legacy entitlement
+
+1. Bestaande DefaultScope permissiedefinitie verwijderen uit HelloID
+2. Nieuw permission import script plaatsen (met `DefaultScope (legacy)` permissie)
+3. Ga naar **Business Rules → Entitlement overzicht**
+4. Zoek alle business rules met DefaultScope-entitlement (herkenbaar aan uitroepteken — permissiedefinitie is verwijderd)
+5. Per business rule: oude DefaultScope-entitlement uitvinken → nieuwe `DefaultScope (legacy)` aanvinken
+6. Business rule opnieuw publishen
+
+> ⚠️ Controleer per business rule of er **draft-wijzigingen** zijn. Die wil je niet meenemen, maar de business rule moet wel opnieuw gepubliceerd worden. Stem dit af met de klant vóór je publiceert.
+
+---
+
+#### Stappen Optie B — Twee nieuwe entitlements
+
+1. Bestaande DefaultScope permissiedefinitie verwijderen uit HelloID
+2. Nieuw permission import script plaatsen (met `DefaultScope my locations` en `DefaultScope my teams`)
+3. Ga naar **Business Rules → Entitlement overzicht**
+4. Zoek alle business rules met DefaultScope-entitlement (herkenbaar aan uitroepteken)
+5. Per business rule: oude DefaultScope-entitlement uitvinken → zowel `DefaultScope my teams` als `DefaultScope my locations` aanvinken
+6. Business rule opnieuw publishen
+
+> ⚠️ Zelfde draft-waarschuwing als bij Optie A: stem herpubliceren af met de klant.
+
+---
+
+#### Stappen Optie C — Fallback in subpermissie script
+
+1. Subpermissie script plaatsen (met fallback logica voor onbekende permission references, gebouwd door Rudolf Amersfoort)
+2. Geen wijzigingen in permissiedefinities of business rules nodig
+
+> ✅ Snelste optie. Geen klantafstemming over drafts nodig.
+
+---
+
+**Checklist DefaultScope na migratie (alle opties):**
+
+- [ ] DefaultScope permissies aanwezig in datastorage (Stap 5 — force update uitgevoerd)
+- [ ] DefaultScope referentie correct: `DefaultScope` (legacy), `DefaultScopeLocations`, `DefaultScopeTeams`, `DefaultScopeAllClients`, `DefaultScopeAllEmployees`
+- [ ] Klant geïnformeerd: nieuwe rollen krijgen niet automatisch standaardbereik
 
 ---
 
@@ -672,4 +734,38 @@ Als een klant na de migratie zelf een nieuwe rol aanmaakt, krijgt die rol niet a
 | DefaultScope-permissie kan niet worden ingetrokken | Force update DefaultScope is niet uitgevoerd → datastorage mist de permissies | Rudolf Amersfoort |
 | Audit log toont onjuiste permissiewijzigingen | Reference Cleaner niet correct uitgevoerd | Rudolf Amersfoort |
 | Accountreferentie-fout na migratie | ARef fix-code ontbreekt in `update.ps1`, of Update All Accounts nog niet uitgevoerd | Rudolf Amersfoort |
-| Connector schrijft naar verkeerde omgeving | `baseUrl` in configuration.json con
+| Connector schrijft naar verkeerde omgeving | `baseUrl` in configuration.json controleren: staging vs. production | Consultant (self-fix) |
+| Certificaatfout | Controleer of certificaat v7 actief is in Nedap Podium en door klant goedgekeurd | Remco den Elzen (support) |
+| Mapping-CSV geeft kolomfout | Kolomnamen controleren: `HelloIDPrimaryLookupKey`, `HelloIDSecondaryLookupKey`, `NedapLocationIds`/`NedapTeamIds` | Consultant (self-fix) |
+
+---
+
+## 11. Bijlage C — Contacten en escalatie
+
+| Naam | Rol | Contact |
+|------|-----|---------|
+| Rick Jongbloed | Projectleider, eindverantwoordelijke pilotfase | R.Jongbloed@tools4ever.com |
+| Rudolf Amersfoort | Connector-ontwikkelaar, technische vragen | r.amersfoort@tools4ever.com |
+| Rick van den Dijssel | Feature flag, product owner | R.vdDijssel@tools4ever.com |
+| Remco den Elzen | Topdesk, support, certificaatupgrade Nedap Podium | R.denElzen@tools4ever.com |
+| Jeroen Smit | Autorisatiematrix (indien aanpassing nodig) | J.Smit@tools4ever.com |
+| Ron Kuper | Escalatie management / billing | R.Kuper@tools4ever.com |
+
+---
+
+## Wijzigingslog
+
+| Versie | Datum | Wijziging | Door |
+|--------|-------|-----------|------|
+| 0.1 | 2026-05-01 | Eerste opzet op basis van gesprek Rudolf + pilotplanning | Rick Jongbloed / Claude |
+| 0.2 | 2026-05-01 | Reference Cleaner stappen uitgewerkt op basis van officiële manual v1.2 | Rick Jongbloed / Claude |
+| 0.3 | 2026-05-01 | Migratiestappen volledig herschreven op basis van Migration.md in connector-repo (branch Nedap-new-permissions-api-standard); correcte volgorde, ARef-fix, DefaultScope datastorage, configuration.json parameters | Rick Jongbloed / Claude |
+| 0.4 | 2026-05-01 | Volgorde gecorrigeerd: Reference Cleaner verplaatst naar vóór [Migrate] (was erna per draft Rudolf); wachtacties pre-assessment rapportage toegevoegd | Rick Jongbloed / Claude |
+| 0.5 | 2026-05-01 | Volgorde teruggedraaid naar Rudolf's gevalideerde procedure (migratie eerst, Reference Cleaner daarna); open vraag Reference Cleaner + Nedap array-of-objects toegevoegd; rapportage wachtacties gemarkeerd als niet haalbaar pilotfase; Remco Houthuijzen toegevoegd als consultant | Rick Jongbloed / Claude |
+| 0.6 | 2026-05-01 | Rollback-waarschuwing toegevoegd; RC pre-check als verplichte stap vóór migratie; script backup stap 0; maintenance window communicatie aan klant; mapping CSV noot (70%/30%); Rick Nieuweveen, André, Ronald, Farid toegevoegd aan rollen | Rick Jongbloed / Claude |
+| 0.7 | 2026-05-08 | Stap 2 volledig uitgewerkt op basis van gesprek Rick Jongbloed + Rudolf Amersfoort: migration wizard stap-voor-stap (Tab Fields, Account, Permissions, Resource, Correlation); Stap 0b maatwerk check toegevoegd; RC pre-check uitgebreid met GO/NOGO loop; stapnummering gecorrigeerd (0–6); correlatie-instellingen toegevoegd; namen bijgewerkt naar volledige namen + e-mailadressen | Rick Jongbloed / Claude |
+| 0.8 | 2026-05-13 | Bijlage A DefaultScope uitgebreid op basis van DefaultScope_Beslisdocument.docx: drie opties (A legacy / B twee nieuwe / C fallback script) uitgewerkt met stappen, voor- en nadelen; beslissing open pending haalbaarheid Optie C; Stap 2 Tab Permissions verwijst naar Bijlage A | Rick Jongbloed / Claude |
+
+---
+
+*Dit document wordt opgeslagen in de GitHub-repository: [NedapUsersV2migration](https://github.com/Rick-Jongbloed/NedapUsersV2migration)*
