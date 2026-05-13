@@ -364,13 +364,14 @@ Voer vóór de migratie een volledige force update uit zodat alle accounts en pe
 
 **Default scope permissie-definitie:**
 
-> ❓ De exacte stappen hier hangen af van de gekozen DefaultScope-aanpak (Optie A, B of C). Zie **Bijlage A** voor de volledige uitleg per optie. Voer de onderstaande stappen uit conform de gekozen optie.
+> 📋 Aanpak: legacy entitlement vervangen (BESLOTEN). Zie **Bijlage A** voor de volledige stappen en achtergrond.
 
-- [ ] Optie A/B: bestaande permissiedefinitie verwijderen en nieuw permission import script plaatsen
-- [ ] Optie A/B: Omzetten naar **Handle all actions script**
-- [ ] Subpermission script plaatsen (bij Optie C: script met fallback logica)
+- [ ] Bestaande DefaultScope permissiedefinitie verwijderen
+- [ ] Nieuw permission import script plaatsen (met `DefaultScope (legacy)`)
+- [ ] Omzetten naar **Handle all actions script**
+- [ ] Subpermission script plaatsen
 - [ ] Toggle **Context Data storage** aanzetten
-- [ ] Optie A/B: business rules bijwerken (zie Bijlage A)
+- [ ] Business rules bijwerken na migratie: legacy entitlement koppelen (zie Bijlage A)
 
 **Roles permissie-definitie:**
 
@@ -641,59 +642,39 @@ Nieuwe rollen krijgen niet automatisch het standaardbereik. Informeer de klant h
 
 ---
 
-#### ❓ Open beslissing: migratieaanpak DefaultScope (optie A / B / C)
+#### Migratieaanpak DefaultScope — BESLOTEN: legacy entitlement vervangen (Optie A)
 
-> **Status: beslissing nog open.** Rudolf Amersfoort moet haalbaarheid van Optie C bevestigen. Pas de stappen hieronder toe op basis van de gekozen optie. Zie `DefaultScope_Beslisdocument.docx` voor de volledige onderbouwing.
+> **Besluit (meeting 13 mei 2026):** business rules aanpassen, legacy entitlement 1-op-1 vervangen. Werking blijft functioneel identiek — alleen de naamgeving wijzigt. Zie `DefaultScope_Beslisdocument.docx`.
 
-| Optie | Aanpak | BR-wijzigingen nodig | Connector effort | Toekomstbestendig |
-|-------|--------|----------------------|-----------------|-------------------|
-| A | Legacy entitlement gebruiken | Ja — 1 entitlement vervangen per BR | Geen | Beperkt |
-| B | Meteen twee nieuwe entitlements | Ja — 2 entitlements koppelen per BR | Minimaal | Ja |
-| C | Fallback in subpermissie script | **Nee** | Development nodig bij connector team | Deels |
+**Waarom Optie A:** de nieuwe PowerShell v2 connector levert permission references in CamelCase aan, afwijkend van bestaande implementaties. Dit maakt een gewijzigde permission reference onvermijdelijk — en dus een BR-aanpassing sowieso nodig. De legacy entitlement houdt rekening met de CSV-matrix (functie/afdeling/all clients/all employees); de alternatieve opties niet.
 
-**Voorkeur Rick Jongbloed:** C (indien haalbaar), anders B. Optie A biedt geen realistisch voordeel ten opzichte van B.
+**Afgewezen alternatieven:**
+- *Configuratie-hack:* laat technische schuld achter in connector; riskant bij latere configuratiewijzigingen
+- *Contains-check in script:* te risicovol bij toekomstige connector-uitbreidingen
+- *Twee nieuwe entitlements direct:* vereist volledig redesign van de CSV-matrix logica met de klant
+
+**Praktisch:** meestal 1 business rule per klant. ~20% heeft meerdere bedrijven en dus meer business rules. Het entitlement-overzicht in HelloID maakt identificatie eenvoudig (uitroepteken = permissiedefinitie verwijderd).
 
 ---
 
-#### Stappen Optie A — Legacy entitlement
+#### Stappen — Legacy entitlement vervangen
 
 1. Bestaande DefaultScope permissiedefinitie verwijderen uit HelloID
 2. Nieuw permission import script plaatsen (met `DefaultScope (legacy)` permissie)
 3. Ga naar **Business Rules → Entitlement overzicht**
-4. Zoek alle business rules met DefaultScope-entitlement (herkenbaar aan uitroepteken — permissiedefinitie is verwijderd)
-5. Per business rule: oude DefaultScope-entitlement uitvinken → nieuwe `DefaultScope (legacy)` aanvinken
-6. Business rule opnieuw publishen
-
-> ⚠️ Controleer per business rule of er **draft-wijzigingen** zijn. Die wil je niet meenemen, maar de business rule moet wel opnieuw gepubliceerd worden. Stem dit af met de klant vóór je publiceert.
-
----
-
-#### Stappen Optie B — Twee nieuwe entitlements
-
-1. Bestaande DefaultScope permissiedefinitie verwijderen uit HelloID
-2. Nieuw permission import script plaatsen (met `DefaultScope my locations` en `DefaultScope my teams`)
-3. Ga naar **Business Rules → Entitlement overzicht**
 4. Zoek alle business rules met DefaultScope-entitlement (herkenbaar aan uitroepteken)
-5. Per business rule: oude DefaultScope-entitlement uitvinken → zowel `DefaultScope my teams` als `DefaultScope my locations` aanvinken
+5. Per business rule: oude DefaultScope-entitlement **uitvinken** → nieuwe `DefaultScope (legacy)` **aanvinken**
 6. Business rule opnieuw publishen
 
-> ⚠️ Zelfde draft-waarschuwing als bij Optie A: stem herpubliceren af met de klant.
+> ⚠️ **Draft business rules:** controleer per business rule of er niet-gepubliceerde wijzigingen zijn. Die wil je niet meenemen — maar de business rule moet wél opnieuw gepubliceerd worden. Dit vereist afstemming met de klant vóór herpubliceren.
 
 ---
 
-#### Stappen Optie C — Fallback in subpermissie script
-
-1. Subpermissie script plaatsen (met fallback logica voor onbekende permission references, gebouwd door Rudolf Amersfoort)
-2. Geen wijzigingen in permissiedefinities of business rules nodig
-
-> ✅ Snelste optie. Geen klantafstemming over drafts nodig.
-
----
-
-**Checklist DefaultScope na migratie (alle opties):**
+**Checklist DefaultScope na migratie:**
 
 - [ ] DefaultScope permissies aanwezig in datastorage (Stap 5 — force update uitgevoerd)
 - [ ] DefaultScope referentie correct: `DefaultScope` (legacy), `DefaultScopeLocations`, `DefaultScopeTeams`, `DefaultScopeAllClients`, `DefaultScopeAllEmployees`
+- [ ] Alle business rules bijgewerkt: legacy entitlement actief, geen uitroeptekens meer
 - [ ] Klant geïnformeerd: nieuwe rollen krijgen niet automatisch standaardbereik
 
 ---
@@ -764,8 +745,9 @@ Nieuwe rollen krijgen niet automatisch het standaardbereik. Informeer de klant h
 | 0.5 | 2026-05-01 | Volgorde teruggedraaid naar Rudolf's gevalideerde procedure (migratie eerst, Reference Cleaner daarna); open vraag Reference Cleaner + Nedap array-of-objects toegevoegd; rapportage wachtacties gemarkeerd als niet haalbaar pilotfase; Remco Houthuijzen toegevoegd als consultant | Rick Jongbloed / Claude |
 | 0.6 | 2026-05-01 | Rollback-waarschuwing toegevoegd; RC pre-check als verplichte stap vóór migratie; script backup stap 0; maintenance window communicatie aan klant; mapping CSV noot (70%/30%); Rick Nieuweveen, André, Ronald, Farid toegevoegd aan rollen | Rick Jongbloed / Claude |
 | 0.7 | 2026-05-08 | Stap 2 volledig uitgewerkt op basis van gesprek Rick Jongbloed + Rudolf Amersfoort: migration wizard stap-voor-stap (Tab Fields, Account, Permissions, Resource, Correlation); Stap 0b maatwerk check toegevoegd; RC pre-check uitgebreid met GO/NOGO loop; stapnummering gecorrigeerd (0–6); correlatie-instellingen toegevoegd; namen bijgewerkt naar volledige namen + e-mailadressen | Rick Jongbloed / Claude |
-| 0.8 | 2026-05-13 | Bijlage A DefaultScope uitgebreid op basis van DefaultScope_Beslisdocument.docx: drie opties (A legacy / B twee nieuwe / C fallback script) uitgewerkt met stappen, voor- en nadelen; beslissing open pending haalbaarheid Optie C; Stap 2 Tab Permissions verwijst naar Bijlage A | Rick Jongbloed / Claude |
+| 0.8 | 2026-05-13 | Bijlage A DefaultScope herschreven: besluit vastgelegd (Optie A — legacy entitlement vervangen), stappen uitgewerkt, afgewezen alternatieven gedocumenteerd; Stap 2 Tab Permissions bijgewerkt naar definitieve aanpak | Rick Jongbloed / Claude |
 
 ---
 
 *Dit document wordt opgeslagen in de GitHub-repository: [NedapUsersV2migration](https://github.com/Rick-Jongbloed/NedapUsersV2migration)*
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            
