@@ -1,6 +1,6 @@
 # Nedap Ons v1 → v2 — Uitvoeringshandleiding
 
-> **Status:** concept — gebaseerd op gesprek met Rudolf Amersfoort + pilotervaring Rick Jongbloed  
+> **Status:** gevalideerd op testomgeving Vughterstede — 18 mei 2026  
 > **Doelgroep:** IAM Consultants Tools4ever  
 > **Doel:** 4 uur per klant op productie, zonder testomgeving (vanaf klant 4+)
 
@@ -75,24 +75,19 @@ De migratie is **100% technisch** — geen functionele wijzigingen, geen verbete
 ## 3. Fase 0 — Testrun op eigen omgeving (Rick)
 
 > **Van toepassing op:** Rick Jongbloed, vóór uitvoering bij klant 1 (Vughterstede)  
-> **Doel:** stappen valideren, edge cases ontdekken, definitief stappenplan vaststellen
+> **Status: ✅ Afgerond — testmigratie uitgevoerd op testomgeving Vughterstede, 18 mei 2026**  
+> Zie `Testmigratie_Vughterstede_Dag1_Bevindingen.md` voor de volledige sessienota.
 
-De volgende stappen kunnen niet volledig op papier worden vastgesteld zonder ze te hebben uitgevoerd. Voer daarom een volledige testrun uit op een eigen testomgeving vóórdat klant 1 ingepland wordt.
-
-- [ ] Productieomgeving van een testklant nabouwen op eigen testomgeving
-- [ ] Controleer of Rudolf Amersfoort de connector scripts al heeft bijgewerkt (vereiste vóór Reference Cleaner)
-- [ ] Volledig doorlopen van Fase 4 (migratiestappen testomgeving) — noteer elke exacte scriptnaam, klik en volgorde
-- [ ] **Beantwoord open beslispunt:** kan de Reference Cleaner draaien op v1-scripts (pre-check vóór migratie werkt dan als volledige run), of heeft hij v2-scripts nodig? → volgorde definitief vastleggen
-- [ ] **Beantwoord open vraag:** werkt de Reference Cleaner voor Nedap (array of objects)? → antwoord Remco Houthuijzen verwerken
-- [ ] Documenteer het aantal Permission Configurations bij de testklant
-- [ ] Valideer dat de `DirectoryCacheLocationsTeams` parameter ongewijzigd is gebleven (verwacht: ja)
-- [ ] Noteer foutmeldingen die optreden en hoe je die oplost
-- [ ] Controleer entitlement-conversie: zijn statische mappings correct overgekomen?
-- [ ] Controleer standaardbereik-gedrag na migratie
-- [ ] Verwerk bevindingen in dit document (Fase 4 aanvullen met exacte stappen)
-- [ ] Screen recording maken van de volledige run als naslagmateriaal
-
-> ✏️ **Na de testrun:** Vul de exacte scriptnamen en klikpaden in in Fase 4. Pas dit document aan waar nodig. Dat is de definitieve handleiding voor klant 1.
+- [x] Productieomgeving van testklant Vughterstede nagebouwd op testomgeving (zelfde dag, 07:30)
+- [x] V2-scripts beschikbaar en gevalideerd (branch `nedap-new-permissions-api-standard`)
+- [x] Volledig doorlopen van Fase 4 (migratiestappen testomgeving) — stappen vastgelegd in dit document
+- [x] **Open beslispunt beantwoord:** Reference Cleaner draait zowel vóór de migratie (pre-check op V1, om blocking taken te vinden) als ná de migratie (op V2, om `DisplayName`/`DisplayNameFull` te verwijderen). Beide runs zijn aparte stappen — zie Fase 4.
+- [x] **Open vraag beantwoord:** Reference Cleaner werkt voor Nedap (array of objects) — bevestigd in praktijk.
+- [x] `DirectoryCacheLocationsTeams` parameter ongewijzigd gebleven — bevestigd.
+- [x] Entitlement-conversie gecontroleerd: statische mappings correct overgekomen.
+- [x] Standaardbereik-gedrag gevalideerd.
+- [x] Bevindingen verwerkt in dit document (zie Fase 4).
+- [x] Screen recording beschikbaar (Vughterstede dag 1).
 
 ---
 
@@ -272,6 +267,20 @@ Klik **Stop cleaner** rechts bovenaan.
 
 ---
 
+### Start van de dag
+
+Voer deze stappen uit vóórdat je met de eigenlijke migratie begint.
+
+1. Log in op de HelloID-omgeving van de klant.
+2. Zet alle **schedules uit** (handmatig, één voor één). *(Voorkomt ongewenste wijzigingen tijdens de migratie.)*
+3. Ga naar **Provisioning → Systems** → noteer de huidige **threshold-waarden** per connector (bewaar deze — je zet ze aan het einde terug).
+4. Stel alle thresholds in op **1**. *(Bij een onverwacht grote actie stopt de connector dan na de eerste uitvoering.)*
+5. Controleer: staat de **rooster-synchronisatie** aan? Zo nee: toevoegen en eenmalig draaien vóór je verdergaat. *(Niet-actieve rooster-sync kan na migratie onverwachte imports veroorzaken.)*
+
+> ⚠️ De klant is geïnformeerd dat er op deze dag geen provisioning-acties worden uitgevoerd en dat beheer niet mogelijk is. Controleer dit vóór je begint.
+
+---
+
 ### Stap 0 — Backup en maatwerk check
 
 #### 0a — Scripts backuppen (baseline)
@@ -345,10 +354,10 @@ Voer vóór de migratie een volledige force update uit zodat alle accounts en pe
 | `baseUrl` (Environment) | Nedap API-omgeving | `https://api-staging.ons.io` (test) / `https://api.ons.io` (productie) |
 | `certificatePath` | Volledig pad naar het `.pfx` certificaatbestand | `C:\...\Nedap-cert.pfx` |
 | `certificatePassword` | Wachtwoord van het certificaat | *(geheim)* |
-| `grantDefaultScopeMyself` | Standaardbereik instellen op 'de medewerker zelf' | `false` (standaard) |
+| `grantDefaultScopeMyself` | Standaardbereik instellen op 'de medewerker zelf' | `false` — **niet wijzigen tenzij klant dit expliciet wil** |
 | `mappingLocations` | Pad naar de locaties-mapping CSV | `C:\...\locations.csv` |
 | `mappingTeams` | Pad naar de teams-mapping CSV | `C:\...\teams.csv` |
-| `mappingCsvDelimiter` | CSV-scheidingsteken | `;` |
+| `csvDelimiter` | CSV-scheidingsteken | `;` |
 | `explicitMapping` | Expliciete mapping (dept + functie samen) | `false` |
 | `ValidateTeamAndLocation` | Valideer teams/locaties tegen Nedap Ons | `false` |
 | `DirectoryCacheLocationsTeams` | Pad voor cache van locaties en teams | `C:\...\cache\` |
@@ -394,7 +403,7 @@ Configureer de correlatie conform de [connector ReadMe](https://github.com/Tools
 |---------|-------|
 | Enable correlation | `True` |
 | Person correlation field | `ExternalId` |
-| Account correlation field | `_outputInfo.externalId` |
+| Account correlation field | `NEDAP Ons Identification Number` |
 
 - [ ] Correlatie geconfigureerd en opgeslagen
 
@@ -479,9 +488,9 @@ if (-not [string]::IsNullOrEmpty($($actionContext.References.Account))) {
 
 > 📋 **Gevalideerde procedure:** deze volgorde (migratie eerst, Reference Cleaner daarna) is in de praktijk uitgevoerd door Rudolf Amersfoort en Mauro.
 
-> ❓ **Open beslispunt — volgorde Reference Cleaner:** als de Reference Cleaner ook op v1-scripts kan draaien, is het logischer om hem vóór de migratie uit te voeren (schonere volgorde, minder risico halverwege vast te lopen). Als hij de v2-scripts nodig heeft, moet hij ná de migratie. Remco Houthuijzen (auteur Reference Cleaner manual) is gevraagd om dit te verduidelijken. Definitieve volgorde wordt vastgesteld tijdens de pilot op 18 mei bij Vughterstede. **Pas dit document daarna aan.**
+> ✅ **Volgorde bevestigd (pilot 18 mei 2026):** de Reference Cleaner draait op twee momenten: (1) vóór de migratie als pre-check op V1 om blocking taken te identificeren, en (2) ná de migratie op V2 om `DisplayName` en `DisplayNameFull` te verwijderen. Dit zijn twee aparte runs met een ander doel.
 
-> ⚠️ **Open vraag:** Rick van den Dijssel denkt dat de Reference Cleaner mogelijk niet werkt voor Nedap (array of objects). Rudolf Amersfoort heeft het getest en zegt van wel. Rick Jongbloed onderzoekt dit nog. **Bij twijfel: overleg met Rudolf Amersfoort vóór je verdergaat.**
+> ✅ **Bevestigd:** de Reference Cleaner werkt correct voor Nedap (array of objects).
 
 > *Waarom:* In v1 sloegen de Roles-permissies meerdere velden op in de Identification, waaronder de mutabele velden `DisplayName` en `DisplayNameFull`. Als deze niet verwijderd worden uit de database, falen alle permissiescripts, mislukt de subpermissie-berekening, kloppen datastorage-ID's niet, en toont de audit log onjuiste wijzigingen.
 
@@ -565,7 +574,13 @@ Bij fouten: **niet herstarten** (dit overschrijft de backup). Noteer de foutmeld
 - [ ] Klant controleert: bereik (locaties/teams) werkt zoals verwacht?
 - [ ] Klant geeft schriftelijk akkoord (e-mail of Topdesk)
 
-✅ Gate: technische én functionele validatie akkoord → mag door naar productie (Fase 5).
+#### Afsluiting testomgeving
+
+- [ ] Zet de **schedules weer aan** (nadat Reference Cleaner succesvol is afgerond).
+- [ ] Herstel de **thresholds** naar de oorspronkelijke waarden (genoteerd aan het begin van de dag).
+- [ ] Bevestig aan de klant dat de schedules weer actief zijn.
+
+✅ Gate: technische én functionele validatie akkoord, schedules aan, thresholds hersteld → mag door naar productie (Fase 5).
 
 ---
 
@@ -659,12 +674,21 @@ Nieuwe rollen krijgen niet automatisch het standaardbereik. Informeer de klant h
 
 #### Stappen — Legacy entitlement vervangen
 
+> ⏱️ **Timing:** voer deze stappen uit **ná** de Reference Cleaner (Stap 4), niet tijdens de migration wizard. Zo voorkom je dat de Reference Cleaner interfereert met lopende permissiewijzigingen.
+
+> 📋 **Scope:** controleer eerst hoeveel business rules de DefaultScope-entitlement bevatten. Bij klanten met meerdere bedrijven kan dit meer dan één zijn. Voer onderstaande stappen **voor elke business rule** afzonderlijk uit.
+
 1. Bestaande DefaultScope permissiedefinitie verwijderen uit HelloID
 2. Nieuw permission import script plaatsen (met `DefaultScope (legacy)` permissie)
 3. Ga naar **Business Rules → Entitlement overzicht**
 4. Zoek alle business rules met DefaultScope-entitlement (herkenbaar aan uitroepteken)
-5. Per business rule: oude DefaultScope-entitlement **uitvinken** → nieuwe `DefaultScope (legacy)` **aanvinken**
-6. Business rule opnieuw publishen
+5. Per business rule, in exact deze volgorde:
+   1. Vink de oude DefaultScope-entitlement **uit**.
+   2. Draai een **Sync** op de entitlements.
+   3. Vink de nieuwe `DefaultScope (legacy)` entitlement **aan**.
+   4. Publiceer de business rule — kies bij het publiceren voor **Unmanage** voor het oude DefaultScope-entitlement.
+
+> ⚠️ **Unmanage verplicht:** sla de Unmanage-stap niet over. Zonder Unmanage probeert het systeem de oude permissie alsnog in te trekken met onvoorspelbare resultaten.
 
 > ⚠️ **Draft business rules:** controleer per business rule of er niet-gepubliceerde wijzigingen zijn. Die wil je niet meenemen — maar de business rule moet wél opnieuw gepubliceerd worden. Dit vereist afstemming met de klant vóór herpubliceren.
 
@@ -746,6 +770,7 @@ Nieuwe rollen krijgen niet automatisch het standaardbereik. Informeer de klant h
 | 0.6 | 2026-05-01 | Rollback-waarschuwing toegevoegd; RC pre-check als verplichte stap vóór migratie; script backup stap 0; maintenance window communicatie aan klant; mapping CSV noot (70%/30%); Rick Nieuweveen, André, Ronald, Farid toegevoegd aan rollen | Rick Jongbloed / Claude |
 | 0.7 | 2026-05-08 | Stap 2 volledig uitgewerkt op basis van gesprek Rick Jongbloed + Rudolf Amersfoort: migration wizard stap-voor-stap (Tab Fields, Account, Permissions, Resource, Correlation); Stap 0b maatwerk check toegevoegd; RC pre-check uitgebreid met GO/NOGO loop; stapnummering gecorrigeerd (0–6); correlatie-instellingen toegevoegd; namen bijgewerkt naar volledige namen + e-mailadressen | Rick Jongbloed / Claude |
 | 0.8 | 2026-05-13 | Bijlage A DefaultScope herschreven: besluit vastgelegd (Optie A — legacy entitlement vervangen), stappen uitgewerkt, afgewezen alternatieven gedocumenteerd; Stap 2 Tab Permissions bijgewerkt naar definitieve aanpak | Rick Jongbloed / Claude |
+| 0.9 | 2026-05-22 | Verwerkt op basis van testmigratie Vughterstede 18 mei: Fase 0 afgesloten; open vragen Reference Cleaner volgorde + Nedap array-of-objects beantwoord; "Start van de dag" sectie toegevoegd (schedules uit, thresholds noteren + op 1, rooster-sync check); `mappingCsvDelimiter` gecorrigeerd naar `csvDelimiter`; `grantDefaultScopeMyself` = false expliciet gemaakt; account correlation field gecorrigeerd naar `NEDAP Ons Identification Number`; Bijlage A Default Scope stappen uitgebreid (alle business rules, Unmanage verplicht, volgorde na Reference Cleaner); schedules + thresholds herstellen toegevoegd aan validatiestap | Rick Jongbloed / Claude |
 
 ---
 
