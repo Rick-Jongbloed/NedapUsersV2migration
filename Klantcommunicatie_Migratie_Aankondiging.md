@@ -32,8 +32,10 @@ We raden aan om medewerkers die afhankelijk zijn van toegangswijzigingen hiervan
 
 Na afloop van de productiemigratie vragen we je opnieuw om een korte functionele validatie en schriftelijke bevestiging.
 
-Heb je vragen of wil je iets afstemmen? Je kunt me bereiken via [e-mail / telefoonnummer].
+---
 
-Met vriendelijke groet,  
-[naam consultant]  
-Tools4ever
+**Wat we van jullie vragen op de migratiedag**
+
+Om de migratie soepel te laten verlopen, hebben we jullie hulp nodig op de volgende punten:
+
+**N
