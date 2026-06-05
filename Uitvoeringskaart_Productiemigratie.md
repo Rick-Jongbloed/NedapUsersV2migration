@@ -169,7 +169,7 @@
    - Vervang **Data Import script** (uit repo).
    - Vervang **Configuration** — bij een standaard V1→V2 migratie wijzigen de meeste configuratiesleutels niet. Let op de volgende uitzonderingen:
 
-     1. **Environment / baseUrl** — stel in op **Production** (dropdown); de URL wordt `https://api.ons.io`.
+     1. **Environment (Rest)** — stel in op **Production** (dropdown); de URL wordt `https://api.ons.io`.
      2. **Certificaatpad** — pas het pad aan naar het `.pfx`-bestand in de **productiemap** op de server.
      3. **Certificaatwachtwoord** — vul het wachtwoord van het productiecertificaat in.
      4. Er zijn nu twee aparte toggles voor "myself" — stel beide in op basis van de boolean-check uit de Voorbereiding:
@@ -261,4 +261,4 @@ Voer de stappen in exact deze volgorde uit, voor elke business rule afzonderlijk
 1. Zoek de business rules met de **oude Default Scope** entitlement:
    - Ga naar **Business → Rules → tab Entitlements**.
    - Zoek op de naam van de Default Scope entitlement (bijv. "DefaultScope" — afhankelijk van hoe de permissiedefinitie is ingericht).
-   - Selecteer het entitlement — rechts onder **Details
+   - Selecteer het entitlement — rechts onder **Details** 
