@@ -16,7 +16,7 @@
 - [ ] Feature flag v1 connector aangevraagd bij product owner Tools4ever of support Tools4ever
 - [ ] Bevestig bij klant dat de testomgeving met ID **TE-XXXX** nog steeds in gebruik is (dezelfde waarvoor eerder een certificaat is aangevraagd)
 - [ ] Controleer of het huidige testcertificaat nog geldig is op het geplande uitvoermoment
-- [ ] Certificaat vernieuwen indien nodig — **volgorde: eerst upgraden naar versie 7, daarna pas verversen**; aanvraag via Remco den Elzen, klant keurt goed in Nedap Podium
+- [ ] Certificaat vernieuwen indien nodig — **volgorde: eerst upgraden naar versie 7, daarna pas verversen**; aanvraag via **Tools4ever Support**, klant keurt goed in Nedap Podium
 - [ ] Certificaat geplaatst in **testmap** op server (overschrijf bestaand certificaat)
 - [ ] Klant geïnformeerd: op testmigratiedag worden **geen provisioning-acties** uitgevoerd en is **beheer niet mogelijk**
 
@@ -34,20 +34,31 @@
 
 - [ ] PowerShell CSV-exportscript controleren op kolomnamen — controleer of de `locations.csv` en `teams.csv` al de kolommen `HelloIDPrimaryLookupKey` en `HelloIDSecondaryLookupKey` bevatten:
   - **Kolommen al correct** → niets te doen, sla dit item over.
-  - **Kolommen heten nog `Department.ExternalId` en `Title.ExternalId`** → maak een kopie van het exportscript in de **testmap** op de server en pas dáár de volgende regel aan, in zowel de mapping teams- als de mapping locaties-sectie. ⚠️ Pas het originele script niet aan — de productieconnector draait nog op V1 en heeft dat script nodig.
+  - **Kolommen heten nog `Department.ExternalId` en `Title.ExternalId`** → maak een kopie van het exportscript in de **testmap** op de server en pas dáár de volgende regels aan. ⚠️ Pas het originele script niet aan — de productieconnector draait nog op V1 en heeft dat script nodig.
+
+    **Mapping teams-sectie:**
     ```powershell
     # Vervang:
     Select-Object Department.ExternalId, Title.ExternalId, NedapTeamIds, AllEmployees |
     # Door:
     Select-Object @{Name='HelloIDPrimaryLookupKey'; Expression='Department.ExternalId'}, @{Name='HelloIDSecondaryLookupKey'; Expression='Title.ExternalId'}, NedapTeamIds, AllEmployees |
     ```
-    Draai het aangepaste script daarna vanuit de testmap om een CSV-bestand met de juiste kolomnamen te genereren.
+
+    **Mapping locaties-sectie:**
+    ```powershell
+    # Vervang:
+    Select-Object Department.ExternalId, Title.ExternalId, NedapLocationIds, AllClients |
+    # Door:
+    Select-Object @{Name='HelloIDPrimaryLookupKey'; Expression='Department.ExternalId'}, @{Name='HelloIDSecondaryLookupKey'; Expression='Title.ExternalId'}, NedapLocationIds, AllClients |
+    ```
+
+    Zorg daarna dat de uitvoerpaden in het script naar de **testmap** verwijzen en draai de kopie.
 
   > **Als het exportscript in HelloID staat (Admin dashboard → Automation → Tasks):** maak een kopie van het script en pas in de kopie de kolomnamen aan zoals hierboven beschreven. Pas daarnaast de uitvoerpaden aan zodat de gegenereerde CSV-bestanden in de **testmap** terechtkomen, niet in de productiemap. Draai daarna de kopie om de CSV-bestanden te genereren.
 - [ ] CSV-bestand voor testomgeving staat klaar
-- [ ] V2-scripts beschikbaar — branch [`Nedap-new-permissions-api-standard`](https://github.com/Tools4everBV/HelloID-Conn-Prov-Target-NedapOns-Users/tree/Nedap-new-permissions-api-standard) in de connector-repo
+- [ ] Zorg dat je toegang hebt tot de connector-repo: [`Nedap-new-permissions-api-standard`](https://github.com/Tools4everBV/HelloID-Conn-Prov-Target-NedapOns-Users/tree/Nedap-new-permissions-api-standard)
 - [ ] V1-scripts van de klant doorgenomen op maatwerk — zijn er grote afwijkingen van de standaard? Bespreek dit vóór de migratiedag met de klant en stem af of het maatwerk echt noodzakelijk is.
-- [ ] Controleer de onderstaande twee instellingen in de V1-scripts en noteer de waarden. Ze worden straks elk afzonderlijk omgezet naar een configuratietoggle in V2.
+- [ ] **Myself-check** — controleer de onderstaande twee instellingen in de V1-scripts en noteer de waarden. Ze worden straks elk afzonderlijk omgezet naar een configuratietoggle in V2.
 
   | Script | Wat te controleren | Configuratietoggle in V2 |
   |--------|-------------------|--------------------------|
@@ -58,7 +69,7 @@
 - [ ] Klantcontact uitgevraagd en beschikbaar op testmigratiedag — stel de volgende vragen:
   - Wie is beschikbaar als aanspreekpunt?
   - Wie heeft toegang tot het Excel-naar-CSV-exportscript en kan het opnieuw draaien? *(dit script moet opnieuw gedraaid worden na de migratie, omdat de kolomnamen wijzigen)*
-  - Wordt de server beheerd door een externe partij? Zo ja: zorg dat die persoon ook beschikbaar is op de migratiedag, zodat we niet wachten op servertoegang
+  - Wordt de server beheerd door een externe partij? Zo ja: zorg dat die persoon beschikbaar is op de migratiedag. Geef daarbij aan dat mogelijk op de server ingelogd moet worden om scripts aan te passen.
 
 </details>
 
@@ -73,7 +84,7 @@
 
 1. Log in op de HelloID-omgeving van de klant.
 2. Zet alle **schedules uit** (handmatig, één voor één). *(Voorkomt ongewenste wijzigingen tijdens de migratie.)*
-3. Controleer op uitgedeelde entitlements die niet meer bestaan in Nedap Ons: ga naar **Business → Rules → Entitlements** → filter op Nedap Ons Users → schakel "In role: none" uit en los entitlements met een waarschuwing op. Los gevonden issues op vóór je verdergaat. *(Een schone uitgangssituatie voorkomt vervuiling tijdens de migratie.)*
+3. Controleer op uitgedeelde entitlements die niet meer bestaan in Nedap Ons: ga naar **Business → Rules → Entitlements** → filter op Nedap Ons Users → schakel **In rule: None** en **target system: Yes** uit. Zoek naar entitlements met een waarschuwing en los gevonden issues op vóór je verdergaat. *(Een schone uitgangssituatie voorkomt vervuiling tijdens de migratie.)*
 
 </details>
 
@@ -190,11 +201,15 @@
 
 4. **Tab Account**
    > ⚠️ Controleer vóór het overschrijven of het accountscript klantspecifiek is aangepast. Zo ja: kopieer de klantspecifieke mapping over naar het nieuwe script. Gebruik de read-only V1-kopie (zie stap 2) om de scripts naast elkaar te vergelijken.
-   > Dit stukje gaat van code in het script naar de mapping:
+   >
+   > De volgende instellingen waren in V1 hardcoded als variabelen in het script, maar worden in V2 beheerd via de connector-configuratie. Neem deze regels **niet** over uit het V1-script — controleer wel de waarden en stel de bijbehorende toggles in via de configuratie (zie Configuratie hieronder).
+   >
+   > ```powershell
    > contractRequiredAtLogin = $true
    > ssoEnabled              = $true
    > limitLocationView       = $true
    > passwordChange          = $true
+   > ```
    >
    > **Advies bij maatwerk:** Ontdek je behalve in de mapping (grote) verschillen tussen de V1-scripts en de V2-standaardscripts? Klus deze dan niet direct in — begrijp eerst goed waar de verschillen liggen en bespreek dit met de klant. Stuur aan op de standaardconnector; zeker bij een complexe connector als Nedap Ons levert maatwerk op de lange termijn risico's op.
    >
@@ -254,24 +269,4 @@
    | Person correlation field | `ExternalId` |
    | Account correlation field | Nedap Ons Identification Number |
 
-9. Controleer of je alle vinkjes hebt gezet: Field Configuration ✓ Create ✓ Update ✓ Delete ✓ Permission Default Scope ✓ Permission Role ✓ Resource Cache ✓
-10. Klik **Complete Migration** → bevestig.
-
-</details>
-
----
-
-<details open>
-<summary>
-
-## G — Reference Cleaner (post-migratie)
-
-</summary>
-
-1. Open de Reference Cleaner: `https://[klantnaam].helloid.com/provisioning/#/reference-cleaner/overview`
-2. Klik **Start cleaner**.
-3. Selecteer de **Roles** Permission Configuration.
-4. Klik **Determine differences** — controleer dat `DisplayName` en `DisplayNameFull` in de "to remove"-lijst staan.
-5. Klik **Remove fields**.
-6. Controleer de **History** rechts — actie gelogd?
-7. Klik **Stop cleaner**.
+9. Controleer of je alle

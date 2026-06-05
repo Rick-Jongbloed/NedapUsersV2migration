@@ -2,10 +2,6 @@
 **Doelgroep:** IAM Consultant Tools4ever  
 **Gebruik:** werk deze kaart stap voor stap af op de productiemigratiedag. Vink af, ga door.
 
-> Stappen en checklistitems gemarkeerd met **[Productie-only]** zijn alleen verplicht als er geen testmigratie is uitgevoerd. Bij een migratie ná testfase sla je deze over.
-
----
-
 <details open>
 <summary>
 
@@ -13,35 +9,61 @@
 
 </summary>
 
-- [ ] Testomgeving gevalideerd en **schriftelijk akkoord** klant ontvangen *(of: bewuste keuze gemaakt om zonder testfase te migreren)*
-- [ ] **[Productie-only]** Certificaat v7 aangevraagd bij Remco den Elzen; klant keurt goed in Nedap Podium
-- [ ] Certificaat geplaatst in **productiemap** op server (overschrijf bestaand certificaat)
-- [ ] **[Productie-only]** Feature flag actief bevestigd
-- [ ] Klant geïnformeerd: op productiemigratiedag worden **geen provisioning-acties** uitgevoerd en is **beheer niet mogelijk**
-- [ ] Pending actions productieomgeving = 0 — controleer en los op vóór migratiedag
-- [ ] CSV-exportscript controleren en CSV-bestand voor productieomgeving genereren:
-  - **Als testmigratie al is uitgevoerd** → gebruik het script dat je tijdens de testfase hebt aangepast. Draai het opnieuw om een verse CSV te genereren.
-  - **Geen testmigratie uitgevoerd** → volg dezelfde stappen als bij de testmigratie: controleer of de kolommen `HelloIDPrimaryLookupKey` en `HelloIDSecondaryLookupKey` al aanwezig zijn. Zo niet, pas het script aan volgens de instructies in het testdocument en draai het opnieuw.
+### Minimaal 5 dagen voor start migratie
 
-  > **Als het exportscript in HelloID staat (Admin dashboard → Automation → Tasks):** pas het script direct aan — wijzig de kolomnamen zoals hierboven beschreven en draai het script opnieuw om de CSV-bestanden te genereren.
-- [ ] **[Productie-only]** V2-scripts beschikbaar — branch [`Nedap-new-permissions-api-standard`](https://github.com/Tools4everBV/HelloID-Conn-Prov-Target-NedapOns-Users/tree/Nedap-new-permissions-api-standard) in de connector-repo
-- [ ] **[Productie-only] Boolean-check vóór migratie** *(gebruik eerder genoteerde waarden als de testfase al is uitgevoerd):* controleer de onderstaande twee instellingen in de V1-scripts en noteer de waarden. Ze worden straks elk afzonderlijk omgezet naar een configuratietoggle in V2.
+- [ ] Als gekozen is eerst op testomgeving te migreren: testomgeving gevalideerd en **schriftelijk akkoord** klant ontvangen
+- [ ] Klant geïnformeerd: op productiemigratiedag worden **geen provisioning-acties** uitgevoerd en is **beheer niet mogelijk**
+- [ ] Bevestig dat de certificaatupgrade naar versie 7 is afgerond: aanvraag door Tools4ever Support afgerond én klant heeft goedgekeurd in Nedap Podium
+- [ ] Klantcontact uitgevraagd en beschikbaar op productiemigratiedag — stel de volgende vragen:
+  - Wie is beschikbaar als aanspreekpunt?
+  - Wie kan inloggen op de server, heeft toegang tot het CSV-exportscript en kan het opnieuw uitvoeren?
+  - Wie kan het certificaatbestand op de server plaatsen?
+  - Wordt de server beheerd door een externe partij? Zo ja: zorg dat die persoon beschikbaar is op de migratiedag. Geef daarbij aan dat op de server ingelogd moet worden om het certificaat te plaatsen en mogelijk scripts aan te passen.
+- [ ] Controleer of het CSV-exportscript op de server staat of in HelloID (Admin dashboard → Automation → Tasks) — dit bepaalt hoe je het script aanpast (zie Op migratiedag)
+
+### Minimaal 1 dag voor start migratie
+
+- [ ] Pending actions productieomgeving = 0 — controleer en los pending actions op vóór migratiedag
+
+### Op migratiedag
+
+- [ ] ⚠️ Schakel de schedules uit **voordat** je het certificaat plaatst — zet daarna het nieuwe certificaatbestand in de **productiemap** op de server (overschrijf het bestaande bestand)
+- [ ] CSV-exportscript controleren en CSV-bestanden genereren voor de productieomgeving:
+
+  **Als het script op de server staat:**
+  - Controleer dat de uitvoerpaden in het script verwijzen naar de **productiemap**.
+  - **Als testmigratie al is uitgevoerd** → kolomnamen zijn al correct. Draai het script opnieuw.
+  - **Geen testmigratie uitgevoerd** → controleer of de kolommen `HelloIDPrimaryLookupKey` en `HelloIDSecondaryLookupKey` al aanwezig zijn. Zo niet, vervang:
+
+    **Mapping teams-sectie:**
+    ```powershell
+    # Vervang:
+    Select-Object Department.ExternalId, Title.ExternalId, NedapTeamIds, AllEmployees |
+    # Door:
+    Select-Object @{Name='HelloIDPrimaryLookupKey'; Expression='Department.ExternalId'}, @{Name='HelloIDSecondaryLookupKey'; Expression='Title.ExternalId'}, NedapTeamIds, AllEmployees |
+    ```
+
+    **Mapping locaties-sectie:**
+    ```powershell
+    # Vervang:
+    Select-Object Department.ExternalId, Title.ExternalId, NedapLocationIds, AllClients |
+    # Door:
+    Select-Object @{Name='HelloIDPrimaryLookupKey'; Expression='Department.ExternalId'}, @{Name='HelloIDSecondaryLookupKey'; Expression='Title.ExternalId'}, NedapLocationIds, AllClients |
+    ```
+
+    Draai het script opnieuw.
+
+  **Als het script in HelloID staat (Admin dashboard → Automation → Tasks):**
+  - Pas het script direct aan — wijzig de kolomnamen zoals hierboven en zorg dat de uitvoerpaden naar de **productiemap** verwijzen.
+  - Draai het script opnieuw.
+
+- [ ] Zorg dat je toegang hebt tot de connector-repo: [`Nedap-new-permissions-api-standard`](https://github.com/Tools4everBV/HelloID-Conn-Prov-Target-NedapOns-Users/tree/Nedap-new-permissions-api-standard)
+- [ ] **Myself-check** — controleer de onderstaande twee instellingen in de V1-scripts en noteer de waarden. Je hebt ze nodig tijdens de migratie (Stap D, punt 4).
 
   | Script | Wat te controleren | Configuratietoggle in V2 |
   |--------|-------------------|--------------------------|
   | Default Scope script | `$IsGrantMySelf` bovenin het script | Grant Default Scope Myself |
   | Roles Handle All Actions-script | `$myself` in functie `Merge-EntitlementToNedapRole` (standaard `$true` — check of overschreven) | Grant 'Myself' to each Role assignment |
-
-  Noteer beide waarden — je hebt ze nodig bij Stap D, punt 4.
-- [ ] Klantcontact uitgevraagd en beschikbaar op productiemigratiedag — stel (opnieuw) de volgende vragen:
-  - Wie is beschikbaar als aanspreekpunt?
-  - Wie heeft toegang tot het Excel-naar-CSV-exportscript en kan het opnieuw draaien? *(dit script moet opnieuw gedraaid worden na de migratie, omdat de kolomnamen wijzigen)*
-  - Wordt de server beheerd door een externe partij? Zo ja: zorg dat die persoon ook beschikbaar is op de migratiedag, zodat we niet wachten op servertoegang
-
-### Pre-flight check
-
-- [ ] Voorbereiding productieomgeving volledig afgevinkt (zie boven)
-- [ ] Pending actions productie nog steeds = 0 (bevestig vlak voor je begint)
 
 </details>
 
@@ -55,10 +77,9 @@
 </summary>
 
 1. Log in op de HelloID-omgeving van de klant (productie-URL).
-2. Controleer op oranje driehoek-waarschuwing → schakel filter "In role: none" uit; zijn er entitlements die niet meer in Nedap Ons bestaan, neem deze dan af vóór je verdergaat.
-3. **[Productie-only]** Ga naar **Business → Rules → Entitlements** → filter op Nedap Ons Users → schakel "In role: none" uit en los entitlements met een waarschuwing op. Los gevonden issues op vóór je verdergaat. *(Een schone uitgangssituatie voorkomt vervuiling tijdens de migratie.)*
-4. Zet alle **schedules uit**.
-5. Ga naar **Provisioning → Systems → Nedap Ons - Users** (productieconnector) → noteer de huidige **threshold-waarden** (bewaar deze) → stel in op **1**.
+2. Zet alle **schedules uit**.
+3. Controleer op uitgedeelde entitlements die niet meer bestaan in Nedap Ons: ga naar **Business → Rules → Entitlements** → filter op Nedap Ons Users → schakel **In rule: None** en **target system: Yes** uit. Zoek naar entitlements met een waarschuwing en los gevonden issues op vóór je verdergaat. *(Een schone uitgangssituatie voorkomt vervuiling tijdens de migratie.)*
+4. Ga naar **Provisioning → Systems → Nedap Ons - Users** (productieconnector) → noteer de huidige **threshold-waarden** (bewaar deze) → stel in op **1**.
 
 </details>
 
@@ -126,11 +147,15 @@
 
 4. **Tab Account**
    > ⚠️ Controleer vóór het overschrijven of het accountscript klantspecifiek is aangepast. Zo ja: kopieer de klantspecifieke mapping over naar het nieuwe script. Gebruik de read-only V1-kopie (zie stap 2) om de scripts naast elkaar te vergelijken.
-   > Dit stukje gaat van code in het script naar de mapping:
+   >
+   > De volgende instellingen waren in V1 hardcoded als variabelen in het script, maar worden in V2 beheerd via de connector-configuratie. Neem deze regels **niet** over uit het V1-script — controleer wel de waarden en stel de bijbehorende toggles in via de configuratie (zie Configuratie hieronder).
+   >
+   > ```powershell
    > contractRequiredAtLogin = $true
    > ssoEnabled              = $true
    > limitLocationView       = $true
    > passwordChange          = $true
+   > ```
    >
    > **Advies bij maatwerk:** Ontdek je behalve in de mapping (grote) verschillen tussen de V1-scripts en de V2-standaardscripts? Klus deze dan niet direct in — begrijp eerst goed waar de verschillen liggen en bespreek dit met de klant. Stuur aan op de standaardconnector; zeker bij een complexe connector als Nedap Ons levert maatwerk op de lange termijn risico's op.
    >
@@ -237,25 +262,4 @@ Voer de stappen in exact deze volgorde uit, voor elke business rule afzonderlijk
    - Ga naar **Business → Rules → tab Entitlements**.
    - Zoek op de naam van de Default Scope entitlement (bijv. "DefaultScope" — afhankelijk van hoe de permissiedefinitie is ingericht).
    - Selecteer het entitlement — rechts onder **Details** verschijnen alle business rules waarin dit entitlement is opgenomen.
-   - Open de betreffende business rules via **Ctrl+klik** of **middlemuisklik** op het moersleuteltje om ze in een nieuw venster te openen.
-2. Vink de oude Default Scope **uit**.
-3. Draai een **Sync** op de entitlements van Nedap Ons Users.
-4. Vink de nieuwe **Default Scope (legacy)** entitlement **aan**.
-5. Publiceer de business rule — kies bij het publiceren voor **Unmanage removed entitlement(s)** voor het oude Default Scope entitlement.
-
-   > ⚠️ Sla de Unmanage-stap niet over. Zonder Unmanage probeert het systeem de oude permissie alsnog in te trekken en genereren de acties straks een error.
-
-</details>
-
----
-
-<details open>
-<summary>
-
-## G — Afronden en valideren
-
-</summary>
-
-1. Draai een **Sync** op de entitlements.
-2. Forceer update van alle accounts via **Update all accounts**.
-3. Forceer
+   - Open de betreffende business rules
