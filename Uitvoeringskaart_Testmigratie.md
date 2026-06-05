@@ -18,11 +18,12 @@
 - [ ] Controleer of het huidige testcertificaat nog geldig is op het geplande uitvoermoment
 - [ ] Certificaat vernieuwen indien nodig — **volgorde: eerst upgraden naar versie 7, daarna pas verversen**; aanvraag via **Tools4ever Support**, klant keurt goed in Nedap Podium
 - [ ] Certificaat geplaatst in **testmap** op server (overschrijf bestaand certificaat)
-- [ ] Klant geïnformeerd: op testmigratiedag worden **geen provisioning-acties** uitgevoerd en is **beheer niet mogelijk**
+- [ ] Klant geïnformeerd: op testmigratiedag worden **geen provisioning-acties** uitgevoerd en is **beheer niet mogelijk** — gebruik hiervoor het [aankondigingssjabloon](Klantcommunicatie_Migratie_Aankondiging.md)
 
 ### Minimaal 3 dagen voor start migratie
 
 - [ ] Klant heeft Nedap Ons testomgeving ververst (verse kopie van Nedap Ons productie naar Nedap Ons testomgeving)
+- [ ] Klant bevestigt testomgeving niet te overschrijven totdat de acties van HelloID zijn gecontroleerd
 - [ ] Certificaat actief op testomgeving bevestigd
 
 ### Minimaal 1 dag voor start migratie
@@ -261,10 +262,4 @@
    - Vervang het **Resources script** (`resources.ps1`, uit repo).
    - Klik **Preview** om te controleren, dan **Apply**.
 
-8. **Tab Correlation**
-
-   | Instelling | Waarde |
-   |------------|--------|
-   | Enable correlation | `True` |
-   | Person correlation field | `ExternalId` |
-   | Account correlation field | `_outpu
+8.

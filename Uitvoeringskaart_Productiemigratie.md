@@ -12,7 +12,7 @@
 ### Minimaal 5 dagen voor start migratie
 
 - [ ] Als gekozen is eerst op testomgeving te migreren: testomgeving gevalideerd en **schriftelijk akkoord** klant ontvangen
-- [ ] Klant geïnformeerd: op productiemigratiedag worden **geen provisioning-acties** uitgevoerd en is **beheer niet mogelijk**
+- [ ] Klant geïnformeerd: op productiemigratiedag worden **geen provisioning-acties** uitgevoerd en is **beheer niet mogelijk** — gebruik hiervoor het [aankondigingssjabloon](Klantcommunicatie_Migratie_Aankondiging.md)
 - [ ] Bevestig dat de certificaatupgrade naar versie 7 is afgerond: aanvraag door Tools4ever Support afgerond én klant heeft goedgekeurd in Nedap Podium
 - [ ] Klantcontact uitgevraagd en beschikbaar op productiemigratiedag — stel de volgende vragen:
   - Wie is beschikbaar als aanspreekpunt?
@@ -260,5 +260,4 @@ Voer de stappen in exact deze volgorde uit, voor elke business rule afzonderlijk
 
 1. Zoek de business rules met de **oude Default Scope** entitlement:
    - Ga naar **Business → Rules → tab Entitlements**.
-   - Zoek op de naam van de Default Scope entitlement (bijv. "DefaultScope" — afhankelijk van hoe de permissiedefinitie is ingericht).
-   - Selecteer het entitlement — rechts onder **Details** 
+   - Zoek op de naam van de Default Scope entitlement (bijv. "DefaultScope" — afhankelijk van hoe de p
