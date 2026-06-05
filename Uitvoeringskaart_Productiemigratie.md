@@ -117,7 +117,7 @@
 2. Lees de waarschuwing en klik dan op de gele knop **Start cleaner**.
 3. Wacht tot de statusindicatoren zijn bijgewerkt en beoordeel het resultaat:
    - Alle vinkjes **groen** → ga door naar Stap D.
-   - **Enforcement Runs** blijft draaien → er zijn nog pending actions; ga terug naar Stap B, los ze op en keer terug naar Stap C.
+   - **Enforcement Runs** blijft draaien → er zijn nog pending actions. Klik **Stop cleaner**, los de pending actions op via Stap B en voer daarna Stap C opnieuw uit vanaf het begin.
    - Enforcement Runs is groen maar **andere indicatoren** staan niet op groen → los de gemelde issues op aan de hand van de Reference Cleaner handleiding.
 4. Klik **Stop cleaner** zodra je klaar bent. *(Browsertab sluiten stopt de Cleaner NIET — expliciet stoppen verplicht, als je de cleaner niet stopt, zijn alle business rules read-only.)*
 
@@ -215,7 +215,7 @@
    |------------|--------|
    | Enable correlation | `True` |
    | Person correlation field | `ExternalId` |
-   | Account correlation field | Nedap Ons Identification Number |
+   | Account correlation field | `_outputInfo.externalId` |
 
 9. Controleer of je alle vinkjes hebt gezet: Field Configuration ✓ Create ✓ Update ✓ Delete ✓ Permission Default Scope ✓ Permission Role ✓ Resource Cache ✓
 10. Klik **Complete Migration** → bevestig.
@@ -235,7 +235,7 @@
 2. Lees de waarschuwing en klik op de gele knop **Start cleaner**.
 3. Wacht tot de statusindicatoren zijn bijgewerkt en beoordeel het resultaat:
    - Alle vinkjes **groen** → ga door naar stap 4.
-   - **Enforcement Runs** blijft draaien → er zijn nog pending actions; ga terug naar Stap B, los ze op en keer terug naar Stap E.
+   - **Enforcement Runs** blijft draaien → er zijn nog pending actions. Klik **Stop cleaner**, los de pending actions op via Stap B en voer daarna Stap E opnieuw uit vanaf het begin.
    - Enforcement Runs is groen maar **andere indicatoren** staan niet op groen → los de gemelde issues op aan de hand van de Reference Cleaner handleiding.
 4. Selecteer de **Roles** Permission Configuration.
 5. Klik **Determine differences** — controleer dat `DisplayName` en `DisplayNameFull` in de "to remove"-lijst staan.
@@ -250,7 +250,7 @@
 <details open>
 <summary>
 
-## F — Default Scope legacy instellen
+## F — Default Scope (legacy) Entitlement instellen
 
 </summary>
 
@@ -261,5 +261,4 @@ Voer de stappen in exact deze volgorde uit, voor elke business rule afzonderlijk
 1. Zoek de business rules met de **oude Default Scope** entitlement:
    - Ga naar **Business → Rules → tab Entitlements**.
    - Zoek op de naam van de Default Scope entitlement (bijv. "DefaultScope" — afhankelijk van hoe de permissiedefinitie is ingericht).
-   - Selecteer het entitlement — rechts onder **Details** verschijnen alle business rules waarin dit entitlement is opgenomen.
-   - Open de betreffende business rules
+   - Selecteer het entitlement — rechts onder **Details

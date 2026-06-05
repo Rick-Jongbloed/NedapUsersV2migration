@@ -172,7 +172,7 @@
 2. Lees de waarschuwing en klik dan op de gele knop **Start cleaner**.
 3. Wacht tot de statusindicatoren zijn bijgewerkt en beoordeel het resultaat:
    - Alle vinkjes **groen** → ga door naar Stap F.
-   - **Enforcement Runs** blijft draaien → er zijn nog pending actions; ga terug naar Stap D, los ze op en keer terug naar Stap E.
+   - **Enforcement Runs** blijft draaien → er zijn nog pending actions. Klik **Stop cleaner**, los de pending actions op via Stap D en voer daarna Stap E opnieuw uit vanaf het begin.
    - Enforcement Runs is groen maar **andere indicatoren** staan niet op groen → los de gemelde issues op aan de hand van de Reference Cleaner handleiding.
 4. Klik **Stop cleaner**. *(Browsertab sluiten stopt de Cleaner NIET — expliciet stoppen verplicht, als je de cleaner niet stopt, zijn alle business rules read-only.)*
 
@@ -267,6 +267,4 @@
    |------------|--------|
    | Enable correlation | `True` |
    | Person correlation field | `ExternalId` |
-   | Account correlation field | Nedap Ons Identification Number |
-
-9. Controleer of je alle
+   | Account correlation field | `_outpu
