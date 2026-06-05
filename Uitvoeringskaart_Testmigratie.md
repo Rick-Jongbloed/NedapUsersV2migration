@@ -11,7 +11,8 @@
 
 </summary>
 
-- Minimaal 5 dagen voor start migratie
+### Minimaal 5 dagen voor start migratie
+
 - [ ] Feature flag v1 connector aangevraagd bij product owner Tools4ever of support Tools4ever
 - [ ] Bevestig bij klant dat de testomgeving met ID **TE-XXXX** nog steeds in gebruik is (dezelfde waarvoor eerder een certificaat is aangevraagd)
 - [ ] Controleer of het huidige testcertificaat nog geldig is op het geplande uitvoermoment
@@ -19,18 +20,32 @@
 - [ ] Certificaat geplaatst in **testmap** op server (overschrijf bestaand certificaat)
 - [ ] Klant geïnformeerd: op testmigratiedag worden **geen provisioning-acties** uitgevoerd en is **beheer niet mogelijk**
 
-- Minimaal 3 dagen voor start migratie
+### Minimaal 3 dagen voor start migratie
+
 - [ ] Klant heeft Nedap Ons testomgeving ververst (verse kopie van Nedap Ons productie naar Nedap Ons testomgeving)
 - [ ] Certificaat actief op testomgeving bevestigd
 
-- Minimaal 1 dag voor start migratie
-- [ ] Feature flag actief bevestigd
-- [ ] Pending actions testomgeving = 0 — controleer en los pending acties op vóór migratiedag
+### Minimaal 1 dag voor start migratie
 
-- Op migratiedag
-- [ ] PowerShell CSV-exportscript beschikbaar en aangepast voor nieuwe kolomnamen V2 *(zie apart instructiedocument PowerShell CSV-export)*
+- [ ] Feature flag actief bevestigd
+- [ ] Pending actions testomgeving = 0 — controleer en los pending actions op vóór migratiedag
+
+### Op migratiedag
+
+- [ ] PowerShell CSV-exportscript controleren op kolomnamen — controleer of de `locations.csv` en `teams.csv` al de kolommen `HelloIDPrimaryLookupKey` en `HelloIDSecondaryLookupKey` bevatten:
+  - **Kolommen al correct** → niets te doen, sla dit item over.
+  - **Kolommen heten nog `Department.ExternalId` en `Title.ExternalId`** → maak een kopie van het exportscript in de **testmap** op de server en pas dáár de volgende regel aan, in zowel de mapping teams- als de mapping locaties-sectie. ⚠️ Pas het originele script niet aan — de productieconnector draait nog op V1 en heeft dat script nodig.
+    ```powershell
+    # Vervang:
+    Select-Object Department.ExternalId, Title.ExternalId, NedapTeamIds, AllEmployees |
+    # Door:
+    Select-Object @{Name='HelloIDPrimaryLookupKey'; Expression='Department.ExternalId'}, @{Name='HelloIDSecondaryLookupKey'; Expression='Title.ExternalId'}, NedapTeamIds, AllEmployees |
+    ```
+    Draai het aangepaste script daarna vanuit de testmap om een CSV-bestand met de juiste kolomnamen te genereren.
+
+  > **Als het exportscript in HelloID staat (Admin dashboard → Automation → Tasks):** maak een kopie van het script en pas in de kopie de kolomnamen aan zoals hierboven beschreven. Pas daarnaast de uitvoerpaden aan zodat de gegenereerde CSV-bestanden in de **testmap** terechtkomen, niet in de productiemap. Draai daarna de kopie om de CSV-bestanden te genereren.
 - [ ] CSV-bestand voor testomgeving staat klaar
-- [ ] V2-scripts beschikbaar (branch `nedap-new-permissions-api-standard` in de connector-repo)
+- [ ] V2-scripts beschikbaar — branch [`Nedap-new-permissions-api-standard`](https://github.com/Tools4everBV/HelloID-Conn-Prov-Target-NedapOns-Users/tree/Nedap-new-permissions-api-standard) in de connector-repo
 - [ ] V1-scripts van de klant doorgenomen op maatwerk — zijn er grote afwijkingen van de standaard? Bespreek dit vóór de migratiedag met de klant en stem af of het maatwerk echt noodzakelijk is.
 - [ ] Controleer de onderstaande twee instellingen in de V1-scripts en noteer de waarden. Ze worden straks elk afzonderlijk omgezet naar een configuratietoggle in V2.
 
@@ -44,7 +59,6 @@
   - Wie is beschikbaar als aanspreekpunt?
   - Wie heeft toegang tot het Excel-naar-CSV-exportscript en kan het opnieuw draaien? *(dit script moet opnieuw gedraaid worden na de migratie, omdat de kolomnamen wijzigen)*
   - Wordt de server beheerd door een externe partij? Zo ja: zorg dat die persoon ook beschikbaar is op de migratiedag, zodat we niet wachten op servertoegang
-- [ ] Bij het inloggen: controleer op oranje driehoek-waarschuwing → schakel filter "In role: none" uit; zijn er entitlements die niet meer in Nedap Ons bestaan, neem deze dan af vóór je begint
 
 </details>
 
@@ -68,20 +82,21 @@
 <details open>
 <summary>
 
-## A2 — Testconnector inrichten
+## B — Testconnector inrichten
 
 </summary>
 
-1. Open de productieconnector **Provisioning → Systems → Nedap Ons - Users**.
-2. Kopieer alle **scripts** (Create, Update, Delete, Permission Default Scope, Permission Roles, Resources) en de volledige **configuratie** naar de **Nedap Ons - Users Test** connector. *(Je maakt hiermee een exacte kopie van de productieconnector voor de testomgeving.)* Let daarbij op:
+1. Maak een nieuwe **PowerShell V1 connector** aan via **Provisioning → Systems → Add** en geef deze de naam **Nedap Ons - Users Test** (sla deze stap over als de connector al bestaat).
+2. Open de productieconnector **Provisioning → Systems → Nedap Ons - Users**.
+3. Kopieer alle **scripts** (Create, Update, Delete, Permission Default Scope, Permission Roles, Resources) en de volledige **configuratie** naar de **Nedap Ons - Users Test** connector via copy-paste per script in de script-editor. *(Je maakt hiermee een exacte kopie van de productieconnector voor de testomgeving.)* Let daarbij op:
    - Controleer dat de **naam van de Default Scope entitlement** exact overeenkomt met de productieconnector — inclusief hoofdlettergebruik.
    - Controleer dat de **correlatie-instellingen** (Tab Correlation) identiek zijn aan de productieconnector.
-3. Maak op de server een **testmap** aan (als die er nog niet is) en kopieer daarin:
+4. Maak op de server een **testmap** aan (als die er nog niet is) en kopieer daarin:
    - Het **certificaatbestand** (`.pfx`)
    - De **locations mapping** (`locations.csv`)
    - De **teams mapping** (`teams.csv`)
    - De **cache-map** (of maak een lege map aan als startpunt voor de cache)
-4. Pas in de testconnector de **configuratie** aan zodat alle paden naar de testmap verwijzen:
+5. Pas in de testconnector de **configuratie** aan zodat alle paden naar de testmap verwijzen:
 
    | Parameter | Aanpassen naar |
    |-----------|----------------|
@@ -100,13 +115,13 @@
 <details open>
 <summary>
 
-## B — Testomgeving gelijkstellen aan productie
+## C — Testomgeving gelijkstellen aan productie
 
 </summary>
 
 1. Ga naar **Business Rules** → filter op Nedap Ons Users **en** Nedap Ons Users Test, status "Draft" + "Published" aan, "None" uit. *(Dit geeft overzicht van alle uitgedeelde entitlements. Noteer het huidige aantal.)*
 2. Koppel elk entitlement dat in de productieregel staat ook aan de **testconnector**. Doe dit voor alle Nedap Ons-entitlements. Na voltooiing moet het totaal aantal entitlements **precies het dubbele** zijn van het beginaantal — elk entitlement staat nu zowel op de productie- als de testconnector.
-3. Draai een **Enforcement +** om alles gelijk te trekken en de cachebestanden te genereren. Alle geblokkeerde entitlements kunnen worden doorgezet — komen er fouten uit, dan ligt de oorzaak waarschijnlijk in een verkeerd pad of ontbrekend bestand uit stap A2, punt 4. Controleer in dat geval de configuratie van de testconnector.
+3. Draai een **Enforcement +** om alles gelijk te trekken en de cachebestanden te genereren. Alle geblokkeerde entitlements kunnen worden doorgezet — komen er fouten uit, dan ligt de oorzaak waarschijnlijk in een verkeerd pad of ontbrekend bestand uit Stap B, punt 5. Controleer in dat geval de configuratie van de testconnector.
 4. Controleer de auditlog op fouten na de Enforcement+. Los op wat mogelijk is en **documenteer elke fix** — dezelfde fouten zitten ook in productie. Niet alles hoeft nu opgelost te zijn; pending actions worden afgehandeld in Stap D.
 5. Verifieer dat de testconnector gelijk is aan de productieconnector: scripts zijn identiek en alle entitlements in business rules staan op zowel Nedap Ons Users als Nedap Ons Users Test. Dit is het enige criterium — als dit klopt, is de testomgeving gereed voor migratie.
 
@@ -170,7 +185,7 @@
 3. **Tab Fields**
    - Vink **Field Configuration** aan in de migratieview.
    - Klik **Delete all** (verwijder huidige field mapping).
-   - Download de field mapping van GitHub (branch `nedap-new-permissions-api-standard`).
+   - Download de field mapping van GitHub (branch [`Nedap-new-permissions-api-standard`](https://github.com/Tools4everBV/HelloID-Conn-Prov-Target-NedapOns-Users/tree/Nedap-new-permissions-api-standard)).
    - Importeer de field mapping.
 
 4. **Tab Account**
@@ -217,15 +232,15 @@
    | Location secondary lookup key | `{ $_.Title.ExternalId }` | Niet verplicht — dit veld mag leeg zijn in de mapping CSV |
 
    - Zet **Use script to import permissions** aan.
-   - Plaats het **import permission script** (uit repo).
+   - Plaats het **Import permission script** (uit repo).
    - Zet **Use separate script for each action** uit.
    - Plaats het **Handle all actions script** (uit repo).
    - Zet **Contact Data Storage** aan.
 
 6. **Tab Permissions — Roles**
-   - Plaats het **import permission script** (uit repo).
+   - Plaats het **Import permission script** (uit repo).
    - Klik **Preview** om te controleren, je test nu meteen de certificaatconfiguratie, dan **Apply**.
-   - Plaats het **Handle All Actions script** (uit repo).
+   - Plaats het **Handle all actions script** (uit repo).
 
 7. **Tab Resources**
    - Vervang het **Resources script** (`resources.ps1`, uit repo).
@@ -259,45 +274,4 @@
 4. Klik **Determine differences** — controleer dat `DisplayName` en `DisplayNameFull` in de "to remove"-lijst staan.
 5. Klik **Remove fields**.
 6. Controleer de **History** rechts — actie gelogd?
-7. Klik **Stop cleaner**. *(Browsertab sluiten stopt de Cleaner NIET — expliciet stoppen verplicht, als je de cleaner niet stopt, zijn alle business rules read-only.)*
-
-</details>
-
----
-
-<details open>
-<summary>
-
-## H — Default Scope legacy instellen
-
-</summary>
-
-> Voer de onderstaande stappen uit voor **alle business rules** waarin de oude Default Scope entitlement is opgenomen. Controleer eerst hoeveel business rules de Default Scope bevatten.
-
-Voer de stappen in exact deze volgorde uit, voor elke business rule afzonderlijk:
-
-1. Ga naar alle business rules met de **oude Default Scope** entitlement.
-2. Vink de oude Default Scope **uit**.
-3. Draai een **Sync** op de entitlements van Nedap Ons Users Test.
-4. Vink de nieuwe **Default Scope (legacy)** entitlement **aan**.
-5. Publiceer de business rule — kies bij het publiceren voor **Unmanage removed entitlement(s)** voor het oude Default Scope entitlement.
-
-   > ⚠️ Sla de Unmanage-stap niet over. Zonder Unmanage probeert het systeem de oude permissie alsnog in te trekken en genereren de acties straks een error.
-
-</details>
-
----
-
-<details open>
-<summary>
-
-## I — Afronden en valideren
-
-</summary>
-
-1. Draai een **Sync** op de entitlements.
-2. Forceer update van alle accounts via **Update all accounts**.
-3. Forceer update van alle Default Scope permissies via **Update in permission in definition**.
-4. Forceer update van alle Role permissies via **Update in permission in definition**.
-5. Draai een **Enforcement**.
-6. Zet de blocked entitlements voor accounts door en wacht totdat deze allemaal zijn uitgevoerd
+7. Klik **Stop cleaner**.

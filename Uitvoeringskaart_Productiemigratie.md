@@ -19,8 +19,12 @@
 - [ ] **[Productie-only]** Feature flag actief bevestigd
 - [ ] Klant geïnformeerd: op productiemigratiedag worden **geen provisioning-acties** uitgevoerd en is **beheer niet mogelijk**
 - [ ] Pending actions productieomgeving = 0 — controleer en los op vóór migratiedag
-- [ ] CSV-bestand voor productieomgeving klaarstaat
-- [ ] **[Productie-only]** V2-scripts beschikbaar
+- [ ] CSV-exportscript controleren en CSV-bestand voor productieomgeving genereren:
+  - **Als testmigratie al is uitgevoerd** → gebruik het script dat je tijdens de testfase hebt aangepast. Draai het opnieuw om een verse CSV te genereren.
+  - **Geen testmigratie uitgevoerd** → volg dezelfde stappen als bij de testmigratie: controleer of de kolommen `HelloIDPrimaryLookupKey` en `HelloIDSecondaryLookupKey` al aanwezig zijn. Zo niet, pas het script aan volgens de instructies in het testdocument en draai het opnieuw.
+
+  > **Als het exportscript in HelloID staat (Admin dashboard → Automation → Tasks):** pas het script direct aan — wijzig de kolomnamen zoals hierboven beschreven en draai het script opnieuw om de CSV-bestanden te genereren.
+- [ ] **[Productie-only]** V2-scripts beschikbaar — branch [`Nedap-new-permissions-api-standard`](https://github.com/Tools4everBV/HelloID-Conn-Prov-Target-NedapOns-Users/tree/Nedap-new-permissions-api-standard) in de connector-repo
 - [ ] **[Productie-only] Boolean-check vóór migratie** *(gebruik eerder genoteerde waarden als de testfase al is uitgevoerd):* controleer de onderstaande twee instellingen in de V1-scripts en noteer de waarden. Ze worden straks elk afzonderlijk omgezet naar een configuratietoggle in V2.
 
   | Script | Wat te controleren | Configuratietoggle in V2 |
@@ -33,7 +37,6 @@
   - Wie is beschikbaar als aanspreekpunt?
   - Wie heeft toegang tot het Excel-naar-CSV-exportscript en kan het opnieuw draaien? *(dit script moet opnieuw gedraaid worden na de migratie, omdat de kolomnamen wijzigen)*
   - Wordt de server beheerd door een externe partij? Zo ja: zorg dat die persoon ook beschikbaar is op de migratiedag, zodat we niet wachten op servertoegang
-- [ ] Bij het inloggen: controleer op oranje driehoek-waarschuwing → schakel filter "In role: none" uit; zijn er entitlements die niet meer in Nedap Ons bestaan, neem deze dan af vóór je begint
 
 ### Pre-flight check
 
@@ -118,7 +121,7 @@
 3. **Tab Fields**
    - Vink **Field Configuration** aan in de migratieview.
    - Klik **Delete all** (verwijder huidige field mapping).
-   - Download de field mapping van GitHub (branch `nedap-new-permissions-api-standard`).
+   - Download de field mapping van GitHub (branch [`Nedap-new-permissions-api-standard`](https://github.com/Tools4everBV/HelloID-Conn-Prov-Target-NedapOns-Users/tree/Nedap-new-permissions-api-standard)).
    - Importeer de field mapping.
 
 4. **Tab Account**
@@ -167,15 +170,15 @@
    | Location secondary lookup key | `{ $_.Title.ExternalId }` | Niet verplicht — dit veld mag leeg zijn in de mapping CSV |
 
    - Zet **Use script to import permissions** aan.
-   - Plaats het **import permission script** (uit repo).
+   - Plaats het **Import permission script** (uit repo).
    - Zet **Use separate script for each action** uit.
    - Plaats het **Handle all actions script** (uit repo).
    - Zet **Contact Data Storage** aan.
 
 6. **Tab Permissions — Roles**
-   - Plaats het **import permission script** (uit repo).
+   - Plaats het **Import permission script** (uit repo).
    - Klik **Preview** om te controleren, je test nu meteen de certificaatconfiguratie, dan **Apply**.
-   - Plaats het **Handle All Actions script** (uit repo).
+   - Plaats het **Handle all actions script** (uit repo).
 
 7. **Tab Resources**
    - Vervang het **Resources script** (`resources.ps1`, uit repo).
@@ -230,7 +233,11 @@
 
 Voer de stappen in exact deze volgorde uit, voor elke business rule afzonderlijk:
 
-1. Ga naar alle business rules met de **oude Default Scope** entitlement.
+1. Zoek de business rules met de **oude Default Scope** entitlement:
+   - Ga naar **Business → Rules → tab Entitlements**.
+   - Zoek op de naam van de Default Scope entitlement (bijv. "DefaultScope" — afhankelijk van hoe de permissiedefinitie is ingericht).
+   - Selecteer het entitlement — rechts onder **Details** verschijnen alle business rules waarin dit entitlement is opgenomen.
+   - Open de betreffende business rules via **Ctrl+klik** of **middlemuisklik** op het moersleuteltje om ze in een nieuw venster te openen.
 2. Vink de oude Default Scope **uit**.
 3. Draai een **Sync** op de entitlements van Nedap Ons Users.
 4. Vink de nieuwe **Default Scope (legacy)** entitlement **aan**.
@@ -251,29 +258,4 @@ Voer de stappen in exact deze volgorde uit, voor elke business rule afzonderlijk
 
 1. Draai een **Sync** op de entitlements.
 2. Forceer update van alle accounts via **Update all accounts**.
-3. Forceer update van alle Default Scope permissies via **Update in permission in definition**.
-4. Forceer update van alle Role permissies via **Update in permission in definition**.
-5. Draai een **Enforcement**.
-6. Zet de blocked entitlements voor accounts door en wacht totdat deze allemaal zijn uitgevoerd.
-7. Zet de resterende blocked entitlements voor de default scope en roles door en wacht totdat deze allemaal zijn uitgevoerd.
-8. Controleer:
-   - Geen nieuwe errors in de audit log
-   - Pending actions = 0
-9. Zet de **schedules weer aan** — pas nadat Reference Cleaner succesvol is afgerond en alle validaties zijn doorlopen.
-10. Herstel de **thresholds** van de Nedap Ons - Users connector naar de oorspronkelijke waarden (genoteerd in Stap A, punt 5).
-11. Laat de klant functioneel valideren (accounts, rollen, bereik correct?).
-12. Klant geeft **schriftelijk akkoord** (mail of Topdesk-ticket).
-13. Verwijder de oude **migration reference** connector met de v1 configuratie.
-
-</details>
-
----
-
-## Afsluiting
-
-- [ ] Migratie melden aan Remco den Elzen (Topdesk major ticket)
-- [ ] Rick van den Dijssel informeren: feature flag v1 mag uit voor deze klant
-- [ ] Afwijkingen en tijdsduur documenteren in klantdossier
-- [ ] Handleiding bijwerken indien nodig
-
----
+3. Forceer
