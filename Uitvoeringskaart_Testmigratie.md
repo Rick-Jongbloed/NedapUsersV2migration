@@ -19,6 +19,13 @@
 - [ ] Certificaat vernieuwen indien nodig — **volgorde: eerst upgraden naar versie 7, daarna pas verversen**; aanvraag via **Tools4ever Support**, klant keurt goed in Nedap Podium
 - [ ] Certificaat geplaatst in **testmap** op server (overschrijf bestaand certificaat)
 - [ ] Klant geïnformeerd: op testmigratiedag worden **geen provisioning-acties** uitgevoerd en is **beheer niet mogelijk** — gebruik hiervoor het [aankondigingssjabloon](Klantcommunicatie_Migratie_Aankondiging.md)
+- [ ] **Maatwerk-check** — doorloop de V1-scripts van de klant en beoordeel of er grote afwijkingen zijn van de standaard:
+  - Bespreek eventueel maatwerk vóór de migratiedag met de klant. Benadruk het voordeel van de standaardconnector: toekomstige updates zijn direct toepasbaar zonder maatwerk opnieuw te hoeven doorvoeren.
+  - Intern bij Tools4ever: maatwerk vereist overleg met de **manager delivery** en mogelijk de **product owner connectoren** vóór uitvoering.
+- [ ] Klantcontact uitgevraagd en beschikbaar op testmigratiedag — stel de volgende vragen:
+  - Wie is beschikbaar als aanspreekpunt?
+  - Wie heeft toegang tot het Excel-naar-CSV-exportscript en kan het opnieuw draaien? *(dit script moet opnieuw gedraaid worden na de migratie, omdat de kolomnamen wijzigen)*
+  - Wordt de server beheerd door een externe partij? Zo ja: zorg dat die persoon beschikbaar is op de migratiedag. Geef daarbij aan dat mogelijk op de server ingelogd moet worden om scripts aan te passen.
 
 ### Minimaal 3 dagen voor start migratie
 
@@ -30,11 +37,8 @@
 
 - [ ] Feature flag actief bevestigd
 - [ ] Pending actions testomgeving = 0 — controleer en los pending actions op vóór migratiedag
-
-### Op migratiedag
-
 - [ ] PowerShell CSV-exportscript controleren op kolomnamen — controleer of de `locations.csv` en `teams.csv` al de kolommen `HelloIDPrimaryLookupKey` en `HelloIDSecondaryLookupKey` bevatten:
-  - **Kolommen al correct** → niets te doen, sla dit item over.
+  - **Kolommen al correct** → niets te doen.
   - **Kolommen heten nog `Department.ExternalId` en `Title.ExternalId`** → maak een kopie van het exportscript in de **testmap** op de server en pas dáár de volgende regels aan. ⚠️ Pas het originele script niet aan — de productieconnector draait nog op V1 en heeft dat script nodig.
 
     **Mapping teams-sectie:**
@@ -53,12 +57,10 @@
     Select-Object @{Name='HelloIDPrimaryLookupKey'; Expression='Department.ExternalId'}, @{Name='HelloIDSecondaryLookupKey'; Expression='Title.ExternalId'}, NedapLocationIds, AllClients |
     ```
 
-    Zorg daarna dat de uitvoerpaden in het script naar de **testmap** verwijzen en draai de kopie.
+    Zorg daarna dat de uitvoerpaden in het script naar de **testmap** verwijzen.
 
-  > **Als het exportscript in HelloID staat (Admin dashboard → Automation → Tasks):** maak een kopie van het script en pas in de kopie de kolomnamen aan zoals hierboven beschreven. Pas daarnaast de uitvoerpaden aan zodat de gegenereerde CSV-bestanden in de **testmap** terechtkomen, niet in de productiemap. Draai daarna de kopie om de CSV-bestanden te genereren.
-- [ ] CSV-bestand voor testomgeving staat klaar
+  > **Als het exportscript in HelloID staat (Admin dashboard → Automation → Tasks):** maak een kopie van het script en pas in de kopie de kolomnamen aan zoals hierboven beschreven. Pas de uitvoerpaden aan zodat de CSV-bestanden in de **testmap** terechtkomen, niet in de productiemap.
 - [ ] Zorg dat je toegang hebt tot de connector-repo: [`Nedap-new-permissions-api-standard`](https://github.com/Tools4everBV/HelloID-Conn-Prov-Target-NedapOns-Users/tree/Nedap-new-permissions-api-standard)
-- [ ] V1-scripts van de klant doorgenomen op maatwerk — zijn er grote afwijkingen van de standaard? Bespreek dit vóór de migratiedag met de klant en stem af of het maatwerk echt noodzakelijk is.
 - [ ] **Myself-check** — controleer de onderstaande twee instellingen in de V1-scripts en noteer de waarden. Ze worden straks elk afzonderlijk omgezet naar een configuratietoggle in V2.
 
   | Script | Wat te controleren | Configuratietoggle in V2 |
@@ -67,10 +69,10 @@
   | Roles Handle All Actions-script | `$myself` in functie `Merge-EntitlementToNedapRole` (standaard `$true` — check of overschreven) | Grant 'Myself' to each Role assignment |
 
   Noteer beide waarden — je hebt ze nodig bij Stap F, punt 4.
-- [ ] Klantcontact uitgevraagd en beschikbaar op testmigratiedag — stel de volgende vragen:
-  - Wie is beschikbaar als aanspreekpunt?
-  - Wie heeft toegang tot het Excel-naar-CSV-exportscript en kan het opnieuw draaien? *(dit script moet opnieuw gedraaid worden na de migratie, omdat de kolomnamen wijzigen)*
-  - Wordt de server beheerd door een externe partij? Zo ja: zorg dat die persoon beschikbaar is op de migratiedag. Geef daarbij aan dat mogelijk op de server ingelogd moet worden om scripts aan te passen.
+
+### Op migratiedag
+
+- [ ] Draai het exportscript om verse CSV-bestanden te genereren voor de testomgeving en controleer of de bestanden in de testmap staan.
 
 </details>
 
@@ -85,7 +87,7 @@
 
 1. Log in op de HelloID-omgeving van de klant.
 2. Zet alle **schedules uit** (handmatig, één voor één). *(Voorkomt ongewenste wijzigingen tijdens de migratie.)*
-3. Controleer op uitgedeelde entitlements die niet meer bestaan in Nedap Ons: ga naar **Business → Rules → Entitlements** → filter op Nedap Ons Users → schakel **In rule: None** en **target system: Yes** uit. Zoek naar entitlements met een waarschuwing en los gevonden issues op vóór je verdergaat. *(Een schone uitgangssituatie voorkomt vervuiling tijdens de migratie.)*
+3. Controleer op uitgedeelde entitlements die niet meer bestaan in Nedap Ons: ga naar **Business → Rules → Entitlements** → filter op Nedap Ons Users → open het filter en zet **In rule → None** en **In target system → No** uit. Zoek naar entitlements met een waarschuwing en los gevonden issues op vóór je verdergaat. *(Bij de klant kan het filter er iets anders uitzien — geen geel uitroepteken en andere systeemnamen. De filterlogica is hetzelfde. Een schone uitgangssituatie voorkomt vervuiling tijdens de migratie.)*
 
 </details>
 
@@ -133,7 +135,7 @@
 
 1. Ga naar **Business Rules** → filter op Nedap Ons Users **en** Nedap Ons Users Test, status "Draft" + "Published" aan, "None" uit. *(Dit geeft overzicht van alle uitgedeelde entitlements. Noteer het huidige aantal.)*
 2. Koppel elk entitlement dat in de productieregel staat ook aan de **testconnector**. Doe dit voor alle Nedap Ons-entitlements. Na voltooiing moet het totaal aantal entitlements **precies het dubbele** zijn van het beginaantal — elk entitlement staat nu zowel op de productie- als de testconnector.
-3. Draai een **Enforcement +** om alles gelijk te trekken en de cachebestanden te genereren. Alle geblokkeerde entitlements kunnen worden doorgezet — komen er fouten uit, dan ligt de oorzaak waarschijnlijk in een verkeerd pad of ontbrekend bestand uit Stap B, punt 5. Controleer in dat geval de configuratie van de testconnector.
+3. Draai een **Enforce +** om alles gelijk te trekken en de cachebestanden te genereren: klik op het pijltje rechts van de **Enforce**-knop en kies **>>+ Enforce** — dit voert de enforcement direct uit. Alle geblokkeerde entitlements kunnen worden doorgezet — komen er fouten uit, dan ligt de oorzaak waarschijnlijk in een verkeerd pad of ontbrekend bestand uit Stap B, punt 5. Controleer in dat geval de configuratie van de testconnector.
 4. Controleer de auditlog op fouten na de Enforcement+. Los op wat mogelijk is en **documenteer elke fix** — dezelfde fouten zitten ook in productie. Niet alles hoeft nu opgelost te zijn; pending actions worden afgehandeld in Stap D.
 5. Verifieer dat de testconnector gelijk is aan de productieconnector: scripts zijn identiek en alle entitlements in business rules staan op zowel Nedap Ons Users als Nedap Ons Users Test. Dit is het enige criterium — als dit klopt, is de testomgeving gereed voor migratie.
 
@@ -188,7 +190,7 @@
 
 </summary>
 
-> ⚠️ Vanaf dit moment is de migratie onomkeerbaar. Schedules worden automatisch stilgezet. Er kunnen geen schedules of handmatige acties worden uitgevoerd totdat de migratie volledig is afgerond (Stap I).
+> ⚠️ Vanaf dit moment is de migratie onomkeerbaar. Schedules worden automatisch stilgezet. Er kunnen geen schedules of handmatige acties worden uitgevoerd totdat de migratie volledig is afgerond (Stap J).
 
 > HelloID maakt automatisch een read-only kopie van de volledige connector aan. Je kunt deze kopie in een apart venster openen om scripts van de oude V1-connector te vergelijken met de nieuwe versie.
 
@@ -203,63 +205,4 @@
 4. **Tab Account**
    > ⚠️ Controleer vóór het overschrijven of het accountscript klantspecifiek is aangepast. Zo ja: kopieer de klantspecifieke mapping over naar het nieuwe script. Gebruik de read-only V1-kopie (zie stap 2) om de scripts naast elkaar te vergelijken.
    >
-   > De volgende instellingen waren in V1 hardcoded als variabelen in het script, maar worden in V2 beheerd via de connector-configuratie. Neem deze regels **niet** over uit het V1-script — controleer wel de waarden en stel de bijbehorende toggles in via de configuratie (zie Configuratie hieronder).
-   >
-   > ```powershell
-   > contractRequiredAtLogin = $true
-   > ssoEnabled              = $true
-   > limitLocationView       = $true
-   > passwordChange          = $true
-   > ```
-   >
-   > **Advies bij maatwerk:** Ontdek je behalve in de mapping (grote) verschillen tussen de V1-scripts en de V2-standaardscripts? Klus deze dan niet direct in — begrijp eerst goed waar de verschillen liggen en bespreek dit met de klant. Stuur aan op de standaardconnector; zeker bij een complexe connector als Nedap Ons levert maatwerk op de lange termijn risico's op.
-   >
-   > Mocht maatwerk toch noodzakelijk zijn, voer dan eerst de migratie uit met de onbewerkte standaardscripts en rond deze volledig af vóórdat je aanpassingen doorvoert. Het account Create- en Update-script migreren namelijk éénmalig de in HelloID opgeslagen referenties naar de nieuwe versie — het is essentieel dat deze scripts onbewerkt worden uitgevoerd.
-   >
-   > Twijfels? Neem contact op met Tools4ever support vóór je verdergaat.
-
-   - Vervang **Create script** (uit repo).
-   - Vervang **Update script** (uit repo).
-   - Vervang **Delete script** (uit repo).
-   - Vervang **Data Import script** (uit repo).
-   - Vervang **Configuration** — bij een standaard V1→V2 migratie wijzigen de meeste configuratiesleutels niet. Let op de volgende twee uitzonderingen:
-
-     1. **Environment (Rest)** — staat standaard ingesteld op *Production*. Verander dit voor de testflow naar **Acceptance** (dropdown).
-     2. Er zijn nu twee aparte toggles voor "myself" — stel beide in op basis van de boolean-check die je hebt uitgevoerd in de Voorbereiding:
-
-        | Configuratieoptie | Gebaseerd op | Zet aan als |
-        |-------------------|--------------|-------------|
-        | **Grant Default Scope Myself** | `$IsGrantMySelf` bovenin de Default Scope grant en update permission scripts | waarden `$true` of `$false` |
-        | **Grant 'Myself' to each Role assignment** | `$myself` in functieaanroep van `Merge-EntitlementToNedapRole` in het Roles Handle All Actions-script | waarden `$true` of `$false` |
-
-        Stel beide opties in vóórdat je op Apply drukt.
-
-     Druk daarna altijd éénmaal op **Apply**, ook als er niets is aangepast.
-
-5. **Tab Permissions — Default Scope**
-   - Controleer of de logica van het default scope script afwijkt van de onderstaande Tools4ever-standaarden. Gebruik de read-only V1-kopie (zie stap 2) om te vergelijken. Wijkt de klant af, pas het script dan aan vóór je verdergaat.
-
-   | Parameter | Standaardwaarde | Toelichting |
-   |-----------|-----------------|-------------|
-   | Nedap Ons Identification ID | `Custom.NedapOnsIdentificationNo` | Was configureerbaar in V1, nu hardcoded in script |
-   | Team primary lookup key | `{ $_.Department.ExternalId }` | Verplicht — dit veld mag niet leeg zijn in de mapping CSV |
-   | Team secondary lookup key | `{ $_.Title.ExternalId }` | Niet verplicht — dit veld mag leeg zijn in de mapping CSV |
-   | Location primary lookup key | `{ $_.Department.ExternalId }` | Verplicht — dit veld mag niet leeg zijn in de mapping CSV |
-   | Location secondary lookup key | `{ $_.Title.ExternalId }` | Niet verplicht — dit veld mag leeg zijn in de mapping CSV |
-
-   - Zet **Use script to import permissions** aan.
-   - Plaats het **Import permission script** (uit repo).
-   - Zet **Use separate script for each action** uit.
-   - Plaats het **Handle all actions script** (uit repo).
-   - Zet **Contact Data Storage** aan.
-
-6. **Tab Permissions — Roles**
-   - Plaats het **Import permission script** (uit repo).
-   - Klik **Preview** om te controleren, je test nu meteen de certificaatconfiguratie, dan **Apply**.
-   - Plaats het **Handle all actions script** (uit repo).
-
-7. **Tab Resources**
-   - Vervang het **Resources script** (`resources.ps1`, uit repo).
-   - Klik **Preview** om te controleren, dan **Apply**.
-
-8.
+   > De volgende instellingen waren in V1 hardcoded als variabelen in het script, maar worden in V2 beheerd via de connector-configuratie. Neem deze regels **niet** over uit het 
