@@ -154,8 +154,8 @@
 
 1. Ga naar **Business → Evaluation** — stop alle enforcements met de status *Running* via de gele **Cancel**-knop.
 2. Ga naar **Business → Entitlements → Actions** en los alle openstaande (pending) acties op. Wij adviseren het volgende voor de onderstaande situaties:
-   - Testaccounts → Unmanage
-   - Excluded accounts met account → Unmanage
+   - Testpersonen met accounts → Unmanage
+   - Excluded personen met account → Unmanage
    - Groeptoewijzing zonder account: de conditie die in de account business rule staat ontbreekt in de bijbehorende permissie business rule — voeg dezelfde conditie toe. Ga naar **Business → Rules → Entitlements**, zoek het betreffende entitlement op en pas de relevante business rule(s) aan.
    - Andere → klant raadplegen en samen kijken naar een oplossing
 3. Controleer: het overzicht onder **Business → Entitlements → Actions** is leeg voordat je verdergaat.
