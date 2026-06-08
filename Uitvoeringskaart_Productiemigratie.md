@@ -1,5 +1,5 @@
 # Nedap Ons v1 → v2 — Uitvoeringskaart Productiemigratie
-**Doelgroep:** IAM Consultant Tools4ever  
+**Doelgroep:** IAM Consultant Tools4ever en Tools4ever-partners met ervaring in het implementeren van Nedap Ons connectoren  
 **Gebruik:** werk deze kaart stap voor stap af op de productiemigratiedag. Vink af, ga door.
 
 <details open>
@@ -253,4 +253,4 @@
 
 </summary>
 
-> Voer de onderstaande stappen uit voor **alle business rules** waarin de oude Default Scope entitlement is opgen
+> Voer de onderstaande stappen
