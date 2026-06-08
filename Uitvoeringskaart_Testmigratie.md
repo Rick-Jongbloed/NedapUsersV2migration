@@ -1,5 +1,5 @@
 # Nedap Ons v1 → v2 — Uitvoeringskaart Testmigratie
-**Doelgroep:** IAM Consultant Tools4ever  
+**Doelgroep:** IAM Consultant Tools4ever en Tools4ever-partners met ervaring in het implementeren van Nedap Ons connectoren  
 **Gebruik:** werk deze kaart stap voor stap af op de testmigratiedag. Vink af, ga door.
 
 ---
@@ -205,4 +205,4 @@
 4. **Tab Account**
    > ⚠️ Controleer vóór het overschrijven of het accountscript klantspecifiek is aangepast. Zo ja: kopieer de klantspecifieke mapping over naar het nieuwe script. Gebruik de read-only V1-kopie (zie stap 2) om de scripts naast elkaar te vergelijken.
    >
-   > De volgende instellingen waren in V1 hardcoded als variabelen in het script, maar worden in V2 beheerd via de connector-configuratie. Neem deze regels **niet** over uit het 
+   > De volgende instellingen waren in V1 hardcoded als variabelen in het script, maar worden i
