@@ -1,4 +1,4 @@
-# Nedap Ons v1 → v2 — Proces Migratie Nedap Ons Users v1 naar v2 - Testomgeving
+# Nedap Ons v1 → v2 — Proces migratie Nedap Ons Users v1 naar v2 - Testomgeving
 **Doelgroep:** IAM Consultant Tools4ever en Tools4ever-partners met ervaring in het implementeren van Nedap Ons connectoren  
 **Gebruik:** werk deze kaart stap voor stap af op de testmigratiedag. Vink af, ga door.
 
