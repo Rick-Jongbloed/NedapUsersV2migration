@@ -102,8 +102,8 @@
 
 1. Ga naar **Business → Evaluation** — stop alle enforcements met de status *Running* via de gele **Cancel**-knop.
 2. Ga naar **Business → Entitlements → Actions** en los alle openstaande (pending) acties op. Wij adviseren het volgende voor de onderstaande situaties:
-   - Testpersonen met accounts → Unmanage
-   - Excluded personen met account → Unmanage
+   - Testaccounts → Unmanage
+   - Excluded accounts met account → Unmanage
    - Groeptoewijzing zonder account: de conditie die in de account business rule staat ontbreekt in de bijbehorende permissie business rule — voeg dezelfde conditie toe. Ga naar **Business → Rules → Entitlements**, zoek het betreffende entitlement op en pas de relevante business rule(s) aan.
    - Andere → klant raadplegen en samen kijken naar een oplossing
 3. Controleer: het overzicht onder **Business → Entitlements → Actions** is leeg voordat je verdergaat.
@@ -125,7 +125,7 @@
    - Alle vinkjes **groen** → ga door naar Stap D.
    - **Enforcement Runs** blijft draaien → er zijn nog pending actions. Klik **Stop cleaner**, los de pending actions op via Stap B en voer daarna Stap C opnieuw uit vanaf het begin.
    - Enforcement Runs is groen maar **andere indicatoren** staan niet op groen → los de gemelde issues op aan de hand van de Reference Cleaner handleiding.
-4. Klik **Stop cleaner** zodra je klaar bent. *(Browsertab sluiten stopt de Cleaner NIET — expliciet stoppen verplicht, als je de cleaner niet stopt, zijn alle business rules read-only.)*
+4. Klik **Stop cleaner** zodra alle vinkjes op groen staan. *(Browsertab sluiten stopt de Cleaner NIET — expliciet stoppen verplicht, als je de cleaner niet stopt, zijn alle business rules read-only.)*
 
 </details>
 
