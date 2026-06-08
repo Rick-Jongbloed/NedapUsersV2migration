@@ -250,14 +250,21 @@
 <details open>
 <summary>
 
-## F — Default Scope (legacy) Entitlement instellen
+## ⚠️ CSV-bestanden controleren vóór je verdergaat
 
 </summary>
 
-> Voer de onderstaande stappen uit voor **alle business rules** waarin de oude Default Scope entitlement is opgenomen. Controleer eerst hoeveel business rules de Default Scope bevatten.
+De V2-connector gebruikt nieuwe kolomnamen in de mapping-bestanden. Als de `locations.csv` en `teams.csv` nog de oude kolomnamen bevatten, zal de connector fouten geven bij de enforcement in Stap G.
 
-Voer de stappen in exact deze volgorde uit, voor elke business rule afzonderlijk:
+Controleer of de bestanden in de **productiemap** de volgende kolomnamen bevatten:
+- `HelloIDPrimaryLookupKey`
+- `HelloIDSecondaryLookupKey`
 
-1. Zoek de business rules met de **oude Default Scope** entitlement:
-   - Ga naar **Business → Rules → tab Entitlements**.
-   - Zoek op de naam van de Default Scope entitlement (bijv. "DefaultScope" — afhankelijk van hoe de p
+Zo niet: genereer nu nieuwe CSV-bestanden via het exportscript (zie Voorbereiding) voordat je verdergaat met Stap F.
+
+</details>
+
+---
+
+<details open>
+<summa
