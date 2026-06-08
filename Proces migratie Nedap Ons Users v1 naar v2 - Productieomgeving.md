@@ -84,7 +84,7 @@
 
 1. Log in op de HelloID-omgeving van de klant (productie-URL).
 2. Zet alle **schedules uit**.
-3. Controleer op uitgedeelde entitlements die niet meer bestaan in Nedap Ons: ga naar **Business → Rules → Entitlements** → filter op Nedap Ons Users → open het filter en zet **In rule → None** en **In target system → No** uit. Zoek naar entitlements met een waarschuwing en los gevonden issues op vóór je verdergaat. *(Bij de klant kan het filter er iets anders uitzien — geen geel uitroepteken en andere systeemnamen. De filterlogica is hetzelfde. Een schone uitgangssituatie voorkomt vervuiling tijdens de migratie.)*
+3. Controleer op uitgedeelde entitlements die niet meer bestaan in Nedap Ons: ga naar **Business → Rules → Entitlements** → filter op Nedap Ons Users → open het filter en zet **In rule → None** en **In target system → No** uit. Zoek naar entitlements met een waarschuwing en los gevonden issues op vóór je verdergaat.
 4. Ga naar **Provisioning → Systems → Nedap Ons - Users** (productieconnector) → noteer de huidige **threshold-waarden** (bewaar deze) → stel in op **1**.
 
 </details>

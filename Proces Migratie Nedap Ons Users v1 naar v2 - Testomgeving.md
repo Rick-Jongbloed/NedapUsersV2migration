@@ -87,7 +87,7 @@
 
 1. Log in op de HelloID-omgeving van de klant.
 2. Zet alle **schedules uit** (handmatig, één voor één). *(Voorkomt ongewenste wijzigingen tijdens de migratie.)*
-3. Controleer op uitgedeelde entitlements die niet meer bestaan in Nedap Ons: ga naar **Business → Rules → Entitlements** → filter op Nedap Ons Users → open het filter en zet **In rule → None** en **In target system → No** uit. Zoek naar entitlements met een waarschuwing en los gevonden issues op vóór je verdergaat. *(Bij de klant kan het filter er iets anders uitzien — geen geel uitroepteken en andere systeemnamen. De filterlogica is hetzelfde. Een schone uitgangssituatie voorkomt vervuiling tijdens de migratie.)*
+3. Controleer op uitgedeelde entitlements die niet meer bestaan in Nedap Ons: ga naar **Business → Rules → Entitlements** → filter op Nedap Ons Users → open het filter en zet **In rule → None** en **In target system → No** uit. Zoek naar entitlements met een waarschuwing en los gevonden issues op vóór je verdergaat.
 
 </details>
 
