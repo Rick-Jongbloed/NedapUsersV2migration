@@ -20,12 +20,8 @@ De uitvoeringskaarten verwijzen naar de connector-repo voor scripts en field map
 
 ## Status
 
-Gevalideerd op basis van pilotmigraties bij Vughterstede (test 18 mei 2026, productie 28 mei 2026).
+Gevalideerd op basis van pilotmigraties (test- en productieomgeving, mei 2026).
 
 ## Doelgroep
 
 IAM Consultants en partners die de Nedap Ons v1 → v2 migratie uitvoeren.
-
-## Contact
-
-Rick Jongbloed — projectleider pilotfase
