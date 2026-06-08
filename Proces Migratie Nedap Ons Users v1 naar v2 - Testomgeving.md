@@ -106,7 +106,7 @@
    - Controleer dat de **naam van de Default Scope entitlement** exact overeenkomt met de productieconnector — inclusief hoofdlettergebruik.
    - Controleer dat de **correlatie-instellingen** (Tab Correlation) identiek zijn aan de productieconnector.
 4. Maak op de server een **testmap** aan (als die er nog niet is) en kopieer daarin:
-   - Het **certificaatbestand** (`.pfx`)
+   - Het **certificaatbestand** (`.pfx`) van de testomgeving
    - De **locations mapping** (`locations.csv`)
    - De **teams mapping** (`teams.csv`)
    - De **cache-map** (of maak een lege map aan als startpunt voor de cache)
