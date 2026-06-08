@@ -100,7 +100,7 @@
 
 </summary>
 
-1. Maak een nieuwe **PowerShell V1 connector** aan via **Provisioning → Systems → Add** en geef deze de naam **Nedap Ons - Users Test** (sla deze stap over als de connector al bestaat).
+1. Maak een nieuwe **PowerShell V1 connector** aan via **Provisioning → Systems → Add** en geef deze de naam **Nedap Ons - Users Test**. Als de connector al bestaat, sla de aanmaak dan over — controleer in dat geval wel dat: (a) er geen entitlements uit deze connector zijn gekoppeld in business rules, en (b) alle scripts en configuratie gelijk zijn aan de productieconnector.
 2. Open de productieconnector **Provisioning → Systems → Nedap Ons - Users**.
 3. Kopieer alle **scripts** (Create, Update, Delete, Permission Default Scope, Permission Roles, Resources) en de volledige **configuratie** naar de **Nedap Ons - Users Test** connector via copy-paste per script in de script-editor. *(Je maakt hiermee een exacte kopie van de productieconnector voor de testomgeving.)* Let daarbij op:
    - Controleer dat de **naam van de Default Scope entitlement** exact overeenkomt met de productieconnector — inclusief hoofdlettergebruik.
