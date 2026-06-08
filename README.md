@@ -6,15 +6,15 @@ Documentatie voor het migreren van klanten van de Nedap Ons v1-connector naar de
 
 | Bestand | Omschrijving |
 |---------|-------------|
-| [Proces Migratie Nedap Ons Users v1 naar v2 - Testomgeving.md](Proces Migratie Nedap Ons Users v1 naar v2 - Testomgeving.md) | Stap-voor-stap uitvoeringskaart voor de testmigratie — voorbereiding, connector inrichten, migratie uitvoeren, validatie |
-| [Proces migratie Nedap Ons Users v1 naar v2 - Productieomgeving.md](Proces migratie Nedap Ons Users v1 naar v2 - Productieomgeving.md) | Stap-voor-stap uitvoeringskaart voor de productiemigratie — inclusief [Productie-only] labels voor stappen die alleen gelden bij productie zonder testfase |
-| [Migratiehandleiding_v1_naar_v2.md](Migratiehandleiding_v1_naar_v2.md) | Uitgebreide achtergrondhandleiding — context, beslissingen, technische toelichting |
-| [Klantcommunicatie_Migratie_Aankondiging.md](Klantcommunicatie_Migratie_Aankondiging.md) | Sjabloon voor klantcommunicatie voorafgaand aan de migratiedag |
-| [Testmigratie_Vughterstede_Dag1_Bevindingen.md](Testmigratie_Vughterstede_Dag1_Bevindingen.md) | Sessienota testmigratie Vughterstede (18 mei 2026) — bugs, workarounds, procesobservaties |
+| [Proces migratie - Testomgeving](Proces%20Migratie%20Nedap%20Ons%20Users%20v1%20naar%20v2%20-%20Testomgeving.md) | Stap-voor-stap uitvoeringskaart voor de testmigratie |
+| [Proces migratie - Productieomgeving](Proces%20migratie%20Nedap%20Ons%20Users%20v1%20naar%20v2%20-%20Productieomgeving.md) | Stap-voor-stap uitvoeringskaart voor de productiemigratie — stappen die alleen gelden bij productie zonder testfase zijn gemarkeerd met **[Productie-only]** |
+| [Klantcommunicatie — aankondiging](Klantcommunicatie_Migratie_Aankondiging.md) | Sjabloon voor klantcommunicatie voorafgaand aan de migratiedag |
+
+> De migratiehandleiding (achtergrond, beslissingen, technische toelichting) en klantspecifieke sessienota's worden lokaal beheerd en staan niet in deze repo.
 
 ## Gebruik
 
-Begin met de **Proces Migratie Nedap Ons Users v1 naar v2 - Testomgeving** als je eerst op een testomgeving migreert. Ga daarna verder met de **Proces migratie Nedap Ons Users v1 naar v2 - Productieomgeving**. Wil je direct naar productie zonder testfase, gebruik dan alleen de productiemigratie-kaart en voer alle stappen uit die zijn gemarkeerd met **[Productie-only]**.
+Start met de uitvoeringskaart **Testomgeving** als je eerst op een testomgeving migreert, gevolgd door de kaart **Productieomgeving**. Bij een productie-only migratie gebruik je alleen de productiekaart en voer je alle **[Productie-only]** stappen uit.
 
 De uitvoeringskaarten verwijzen naar de connector-repo voor scripts en field mapping: branch [`Nedap-new-permissions-api-standard`](https://github.com/Tools4everBV/HelloID-Conn-Prov-Target-NedapOns-Users/tree/Nedap-new-permissions-api-standard).
 
