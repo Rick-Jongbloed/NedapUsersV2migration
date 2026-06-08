@@ -50,7 +50,6 @@ Een paar dagen voor de migratie sturen wij een verzoek via Nedap Ons Podium voor
 We vragen je om een beheerder beschikbaar te houden die toegang heeft tot:
 
 - **Nedap Ons Podium**, om de certificaatverzoeken te kunnen goedkeuren (zie hierboven).
-- **Het CSV-exportscript voor de personeelsgegevens**, als dit script lokaal op een server draait en niet in HelloID. De kolomnamen in dit exportbestand wijzigen door de migratie, waardoor het script aangepast moet worden. De beheerder heeft hiervoor ook toegang tot de server nodig.
+- **De server waarop het CSV-exportscript draait**, als dit script lokaal op een server staat (en niet in HelloID zelf). Door de migratie wijzigen de kolomnamen in het exportbestand, waardoor het script op de migratiedag aangepast moet worden. We hebben hiervoor remote toegang tot die server nodig, of een beheerder die het script ter plekke kan aanpassen.
 
-**Eventuele openstaande meldingen in HelloID oplossen**  
-Vóór de migratie controleren we
+**Eventuele opens
