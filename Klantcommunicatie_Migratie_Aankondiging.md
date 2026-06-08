@@ -41,14 +41,11 @@ Na afloop van de productiemigratie vragen we je opnieuw om een korte functionele
 
 Om de migratie soepel te laten verlopen, hebben we jullie hulp nodig op de volgende punten:
 
-**Nedap Ons Podium — certificaatverzoek goedkeuren**  
-Een paar dagen voor de migratie sturen wij een verzoek via Nedap Ons Podium voor het vernieuwen van het koppelcertificaat. We vragen je om Nedap Ons Podium die dag in de gaten te houden en het verzoek zo snel mogelijk goed te keuren zodra je het ontvangt.
+**Nedap Ons Podium — certificaatverzoeken goedkeuren**  
+Zowel voor de testomgeving als voor de productieomgeving sturen wij verzoeken via Nedap Ons Podium: voor het aanmaken van een nieuw koppelcertificaat en het ophogen van de certificaatversie. Een paar dagen voor elke migratiedag sturen wij deze verzoeken op. We vragen je om Podium op die momenten in de gaten te houden en de verzoeken zo snel mogelijk goed te keuren zodra je ze ontvangt.
 
 **Beheerder beschikbaar**  
 We vragen je om een beheerder beschikbaar te houden die toegang heeft tot:
 
 - **Nedap Ons Podium**, om de certificaatverzoeken te kunnen goedkeuren (zie hierboven).
-- **De server waarop het CSV-exportscript draait**, als dit script lokaal op een server staat (en niet in HelloID zelf). Door de migratie wijzigen de kolomnamen in het exportbestand, waardoor het script op de migratiedag aangepast moet worden. We hebben hiervoor remote toegang tot die server nodig, of een beheerder die het script ter plekke kan aanpassen.
-
-**Eventuele openstaande meldingen in HelloID oplossen**  
-Vóór de migr
+- **De server waarop het CSV-exportscript draait**, als dit script lokaal op een server staat (en niet in HelloID zelf). Door de migratie wijzigen de kolomnamen in het exportbestand, waardoor het script op de migratiedag aangepast moet worden. We hebben hiervoor remote toegang tot die server nod
