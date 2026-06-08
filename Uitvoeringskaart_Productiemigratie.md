@@ -12,6 +12,10 @@
 ### Minimaal 5 dagen voor start migratie
 
 - [ ] Als gekozen is eerst op testomgeving te migreren: testomgeving gevalideerd en **schriftelijk akkoord** klant ontvangen
+- [ ] **Maatwerk-check** — beoordeel of er grote afwijkingen zijn van de standaard in de V1-scripts:
+  - Bespreek eventueel maatwerk vóór de migratiedag met de klant. Benadruk het voordeel van de standaardconnector: toekomstige updates zijn direct toepasbaar zonder maatwerk opnieuw te hoeven doorvoeren.
+  - Intern bij Tools4ever: maatwerk vereist overleg met de **manager delivery** en mogelijk de **product owner connectoren** vóór uitvoering.
+  - Is besloten maatwerk aan te passen of nieuwe maatwerk te bouwen? Zorg dat dit eerst op de testomgeving is doorgevoerd en gevalideerd vóór je verdergaat met de productiemigratie.
 - [ ] Klant geïnformeerd: op productiemigratiedag worden **geen provisioning-acties** uitgevoerd en is **beheer niet mogelijk** — gebruik hiervoor het [aankondigingssjabloon](Klantcommunicatie_Migratie_Aankondiging.md)
 - [ ] Bevestig dat de certificaatupgrade naar versie 7 is afgerond: aanvraag door Tools4ever Support afgerond én klant heeft goedgekeurd in Nedap Podium
 - [ ] Klantcontact uitgevraagd en beschikbaar op productiemigratiedag — stel de volgende vragen:
@@ -24,6 +28,15 @@
 ### Minimaal 1 dag voor start migratie
 
 - [ ] Pending actions productieomgeving = 0 — controleer en los pending actions op vóór migratiedag
+- [ ] Zorg dat je toegang hebt tot de connector-repo: [`Nedap-new-permissions-api-standard`](https://github.com/Tools4everBV/HelloID-Conn-Prov-Target-NedapOns-Users/tree/Nedap-new-permissions-api-standard)
+- [ ] **Myself-check** — controleer de onderstaande twee instellingen in de V1-scripts en noteer de waarden. Je hebt ze nodig tijdens de migratie (Stap D, punt 4).
+
+  | Script | Wat te controleren | Configuratietoggle in V2 |
+  |--------|-------------------|--------------------------|
+  | Default Scope script | `$IsGrantMySelf` bovenin het script | Grant Default Scope Myself |
+  | Roles Handle All Actions-script | `$myself` in functie `Merge-EntitlementToNedapRole` (standaard `$true` — check of overschreven) | Grant 'Myself' to each Role assignment |
+
+  Noteer beide waarden — je hebt ze later nodig bij Stap D, punt 4.
 
 ### Op migratiedag
 
@@ -57,13 +70,6 @@
   - Pas het script direct aan — wijzig de kolomnamen zoals hierboven en zorg dat de uitvoerpaden naar de **productiemap** verwijzen.
   - Draai het script opnieuw.
 
-- [ ] Zorg dat je toegang hebt tot de connector-repo: [`Nedap-new-permissions-api-standard`](https://github.com/Tools4everBV/HelloID-Conn-Prov-Target-NedapOns-Users/tree/Nedap-new-permissions-api-standard)
-- [ ] **Myself-check** — controleer de onderstaande twee instellingen in de V1-scripts en noteer de waarden. Je hebt ze nodig tijdens de migratie (Stap D, punt 4).
-
-  | Script | Wat te controleren | Configuratietoggle in V2 |
-  |--------|-------------------|--------------------------|
-  | Default Scope script | `$IsGrantMySelf` bovenin het script | Grant Default Scope Myself |
-  | Roles Handle All Actions-script | `$myself` in functie `Merge-EntitlementToNedapRole` (standaard `$true` — check of overschreven) | Grant 'Myself' to each Role assignment |
 
 </details>
 
@@ -78,7 +84,7 @@
 
 1. Log in op de HelloID-omgeving van de klant (productie-URL).
 2. Zet alle **schedules uit**.
-3. Controleer op uitgedeelde entitlements die niet meer bestaan in Nedap Ons: ga naar **Business → Rules → Entitlements** → filter op Nedap Ons Users → schakel **In rule: None** en **target system: Yes** uit. Zoek naar entitlements met een waarschuwing en los gevonden issues op vóór je verdergaat. *(Een schone uitgangssituatie voorkomt vervuiling tijdens de migratie.)*
+3. Controleer op uitgedeelde entitlements die niet meer bestaan in Nedap Ons: ga naar **Business → Rules → Entitlements** → filter op Nedap Ons Users → open het filter en zet **In rule → None** en **In target system → No** uit. Zoek naar entitlements met een waarschuwing en los gevonden issues op vóór je verdergaat. *(Bij de klant kan het filter er iets anders uitzien — geen geel uitroepteken en andere systeemnamen. De filterlogica is hetzelfde. Een schone uitgangssituatie voorkomt vervuiling tijdens de migratie.)*
 4. Ga naar **Provisioning → Systems → Nedap Ons - Users** (productieconnector) → noteer de huidige **threshold-waarden** (bewaar deze) → stel in op **1**.
 
 </details>
@@ -132,12 +138,12 @@
 
 </summary>
 
+> ⚠️ Vanaf dit moment is de migratie onomkeerbaar. Schedules worden automatisch stilgezet. Er kunnen geen schedules of handmatige acties worden uitgevoerd totdat de migratie volledig is afgerond (Stap H).
+
+> HelloID maakt automatisch een read-only kopie van de volledige connector aan. Je kunt deze kopie in een apart venster openen om scripts van de oude V1-connector te vergelijken met de nieuwe versie.
+
 1. Ga naar **Provisioning → Systems → [Nedap Ons Users]** (productieconnector).
 2. Klik **Migrate system** → bevestig.
-
-   > ⚠️ Vanaf dit moment is de migratie onomkeerbaar. Schedules worden automatisch stilgezet. Er kunnen geen schedules of handmatige acties worden uitgevoerd totdat de migratie volledig is afgerond (Stap G).
-
-   > HelloID maakt automatisch een read-only kopie van de volledige connector aan. Je kunt deze kopie in een apart venster openen om scripts van de oude V1-connector te vergelijken met de nieuwe versie.
 
 3. **Tab Fields**
    - Vink **Field Configuration** aan in de migratieview.
@@ -157,7 +163,7 @@
    > passwordChange          = $true
    > ```
    >
-   > **Advies bij maatwerk:** Ontdek je behalve in de mapping (grote) verschillen tussen de V1-scripts en de V2-standaardscripts? Klus deze dan niet direct in — begrijp eerst goed waar de verschillen liggen en bespreek dit met de klant. Stuur aan op de standaardconnector; zeker bij een complexe connector als Nedap Ons levert maatwerk op de lange termijn risico's op.
+   > **Advies bij maatwerk:** Ontdek je behalve in de mapping (grote) verschillen? De beslissing hierover is al gemaakt in de Voorbereiding (Maatwerk-check). Klop er iets niet of is er iets gemist, overleg dan alsnog vóór je verdergaat.
    >
    > Mocht maatwerk toch noodzakelijk zijn, voer dan eerst de migratie uit met de onbewerkte standaardscripts en rond deze volledig af vóórdat je aanpassingen doorvoert. Het account Create- en Update-script migreren namelijk éénmalig de in HelloID opgeslagen referenties naar de nieuwe versie — het is essentieel dat deze scripts onbewerkt worden uitgevoerd.
    >
@@ -167,21 +173,14 @@
    - Vervang **Update script** (uit repo).
    - Vervang **Delete script** (uit repo).
    - Vervang **Data Import script** (uit repo).
-   - Vervang **Configuration** — bij een standaard V1→V2 migratie wijzigen de meeste configuratiesleutels niet. Let op de volgende uitzonderingen:
+   - Vervang **Configuration** — bij een standaard V1→V2 migratie wijzigen de meeste configuratiesleutels niet. Paden en wachtwoord blijven bewaard na de vervanging. Stel de twee "myself"-toggles in op basis van de boolean-check uit de Voorbereiding:
 
-     1. **Environment (Rest)** — stel in op **Production** (dropdown); de URL wordt `https://api.ons.io`.
-     2. **Certificaatpad** — pas het pad aan naar het `.pfx`-bestand in de **productiemap** op de server.
-     3. **Certificaatwachtwoord** — vul het wachtwoord van het productiecertificaat in.
-     4. Er zijn nu twee aparte toggles voor "myself" — stel beide in op basis van de boolean-check uit de Voorbereiding:
+     | Configuratieoptie | Gebaseerd op | Instelling |
+     |-------------------|--------------|------------|
+     | **Grant Default Scope Myself** | `$IsGrantMySelf` bovenin de Default Scope grant en update permission scripts | Aan als `$true`, uit als `$false` |
+     | **Grant 'Myself' to each Role assignment** | `$myself` in functieaanroep van `Merge-EntitlementToNedapRole` in het Roles Handle All Actions-script | Aan als `$true`, uit als `$false` |
 
-        | Configuratieoptie | Gebaseerd op | Zet aan als |
-        |-------------------|--------------|-------------|
-        | **Grant Default Scope Myself** | `$IsGrantMySelf` bovenin de Default Scope grant en update permission scripts | waarden `$true` of `$false` |
-        | **Grant 'Myself' to each Role assignment** | `$myself` in functieaanroep van `Merge-EntitlementToNedapRole` in het Roles Handle All Actions-script | waarden `$true` of `$false` |
-
-        Stel beide opties in vóórdat je op Apply drukt.
-
-     Druk daarna altijd éénmaal op **Apply**, ook als er niets is aangepast.
+     Stel beide opties in vóórdat je op Apply drukt. Druk daarna altijd éénmaal op **Apply**, ook als er niets is aangepast.
 
 5. **Tab Permissions — Default Scope**
    - Controleer of de logica van het default scope script afwijkt van de onderstaande Tools4ever-standaarden. Gebruik de read-only V1-kopie (zie stap 2) om te vergelijken. Wijkt de klant af, pas het script dan aan vóór je verdergaat.
@@ -254,10 +253,4 @@
 
 </summary>
 
-> Voer de onderstaande stappen uit voor **alle business rules** waarin de oude Default Scope entitlement is opgenomen. Controleer eerst hoeveel business rules de Default Scope bevatten.
-
-Voer de stappen in exact deze volgorde uit, voor elke business rule afzonderlijk:
-
-1. Zoek de business rules met de **oude Default Scope** entitlement:
-   - Ga naar **Business → Rules → tab Entitlements**.
-   - Zoek op de naam van de Default Scope entitlement (bijv. "DefaultScope" — afhankelijk van hoe de p
+> Voer de onderstaande stappen uit voor **alle business rules** waarin de oude Default Scope entitlement is opgen
