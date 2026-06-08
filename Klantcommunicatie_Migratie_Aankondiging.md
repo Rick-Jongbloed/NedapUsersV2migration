@@ -48,4 +48,15 @@ Zowel voor de testomgeving als voor de productieomgeving sturen wij verzoeken vi
 We vragen je om een beheerder beschikbaar te houden die toegang heeft tot:
 
 - **Nedap Ons Podium**, om de certificaatverzoeken te kunnen goedkeuren (zie hierboven).
-- **De server waarop het CSV-exportscript draait**, als dit script lokaal op een server staat (en niet in HelloID zelf). Door de migratie wijzigen de kolomnamen in het exportbestand, waardoor het script op de migratiedag aangepast moet worden. We hebben hiervoor remote toegang tot die server nod
+- **De server waarop het CSV-exportscript draait**, als dit script lokaal op een server staat (en niet in HelloID zelf). Door de migratie wijzigen de kolomnamen in het exportbestand, waardoor het script op de migratiedag aangepast moet worden. We hebben hiervoor remote toegang tot die server nodig, of een beheerder die het script ter plekke kan aanpassen.
+
+**Eventuele openstaande meldingen in HelloID oplossen**  
+Vóór de migratie controleren we of er openstaande acties of foutmeldingen in HelloID aanwezig zijn. Mochten we die aantreffen, dan lossen we die samen met jullie op aan het begin van de dag. De migratie kan pas starten als er geen openstaande acties meer zijn.
+
+---
+
+Heb je vragen of wil je iets afstemmen? Je kunt me bereiken via [e-mail / telefoonnummer].
+
+Met vriendelijke groet,  
+[naam consultant]  
+Tools4ever
