@@ -1,4 +1,4 @@
-# Nedap Ons v1 → v2 — Uitvoeringskaart Testmigratie
+# Nedap Ons v1 → v2 — Proces Migratie Nedap Ons Users v1 naar v2 - Testomgeving
 **Doelgroep:** IAM Consultant Tools4ever en Tools4ever-partners met ervaring in het implementeren van Nedap Ons connectoren  
 **Gebruik:** werk deze kaart stap voor stap af op de testmigratiedag. Vink af, ga door.
 
@@ -205,4 +205,171 @@
 4. **Tab Account**
    > ⚠️ Controleer vóór het overschrijven of het accountscript klantspecifiek is aangepast. Zo ja: kopieer de klantspecifieke mapping over naar het nieuwe script. Gebruik de read-only V1-kopie (zie stap 2) om de scripts naast elkaar te vergelijken.
    >
-   > De volgende instellingen waren in V1 hardcoded als variabelen in het script, maar worden i
+   > De volgende instellingen waren in V1 hardcoded als variabelen in het script, maar worden in V2 beheerd via de connector-configuratie. Neem deze regels **niet** over uit het V1-script — controleer wel de waarden en stel de bijbehorende toggles in via de configuratie (zie Configuratie hieronder).
+   >
+   > ```powershell
+   > contractRequiredAtLogin = $true
+   > ssoEnabled              = $true
+   > limitLocationView       = $true
+   > passwordChange          = $true
+   > ```
+   >
+   > **Advies bij maatwerk:** Ontdek je behalve in de mapping (grote) verschillen? De beslissing hierover is al gemaakt in de Voorbereiding (Maatwerk-check). Klopt er iets niet of is er iets gemist, overleg dan alsnog vóór je verdergaat.
+   >
+   > Mocht maatwerk toch noodzakelijk zijn, voer dan eerst de migratie uit met de onbewerkte standaardscripts en rond deze volledig af vóórdat je aanpassingen doorvoert. Het account Create- en Update-script migreren namelijk éénmalig de in HelloID opgeslagen referenties naar de nieuwe versie — het is essentieel dat deze scripts onbewerkt worden uitgevoerd.
+   >
+   > Twijfels? Neem contact op met Tools4ever support vóór je verdergaat.
+
+   - Vervang **Create script** (uit repo).
+   - Vervang **Update script** (uit repo).
+   - Vervang **Delete script** (uit repo).
+   - Vervang **Data Import script** (uit repo).
+   - Vervang **Configuration** — bij een standaard V1→V2 migratie wijzigen de meeste configuratiesleutels niet. Let op de volgende twee uitzonderingen:
+
+     1. **Environment (Rest)** — staat standaard ingesteld op *Production*. Verander dit voor de testflow naar **Acceptance** (dropdown).
+     2. Er zijn nu twee aparte toggles voor "myself" — stel beide in op basis van de boolean-check die je hebt uitgevoerd in de Voorbereiding:
+
+        | Configuratieoptie | Gebaseerd op | Instelling |
+        |-------------------|--------------|------------|
+        | **Grant Default Scope Myself** | `$IsGrantMySelf` bovenin de Default Scope grant en update permission scripts | Aan als `$true`, uit als `$false` |
+        | **Grant 'Myself' to each Role assignment** | `$myself` in functieaanroep van `Merge-EntitlementToNedapRole` in het Roles Handle All Actions-script | Aan als `$true`, uit als `$false` |
+
+        Stel beide opties in vóórdat je op Apply drukt.
+
+     Druk daarna altijd éénmaal op **Apply**, ook als er niets is aangepast.
+
+5. **Tab Permissions — Default Scope**
+   - Controleer of de logica van het default scope script afwijkt van de onderstaande Tools4ever-standaarden. Gebruik de read-only V1-kopie (zie stap 2) om te vergelijken. Wijkt de klant af, pas het script dan aan vóór je verdergaat.
+
+   | Parameter | Standaardwaarde | Toelichting |
+   |-----------|-----------------|-------------|
+   | Nedap Ons Identification ID | `Custom.NedapOnsIdentificationNo` | Was configureerbaar in V1, nu hardcoded in script |
+   | Team primary lookup key | `{ $_.Department.ExternalId }` | Verplicht — dit veld mag niet leeg zijn in de mapping CSV |
+   | Team secondary lookup key | `{ $_.Title.ExternalId }` | Niet verplicht — dit veld mag leeg zijn in de mapping CSV |
+   | Location primary lookup key | `{ $_.Department.ExternalId }` | Verplicht — dit veld mag niet leeg zijn in de mapping CSV |
+   | Location secondary lookup key | `{ $_.Title.ExternalId }` | Niet verplicht — dit veld mag leeg zijn in de mapping CSV |
+
+   - Zet **Use script to import permissions** aan.
+   - Plaats het **Import permission script** (uit repo).
+   - Zet **Use separate script for each action** uit.
+   - Plaats het **Handle all actions script** (uit repo).
+   - Zet **Contact Data Storage** aan.
+
+6. **Tab Permissions — Roles**
+   - Plaats het **Import permission script** (uit repo).
+   - Klik **Preview** om te controleren, je test nu meteen de certificaatconfiguratie, dan **Apply**.
+   - Plaats het **Handle all actions script** (uit repo).
+
+7. **Tab Resources**
+   - Vervang het **Resources script** (`resources.ps1`, uit repo).
+   - Klik **Preview** om te controleren, dan **Apply**.
+
+8. **Tab Correlation**
+
+   | Instelling | Waarde |
+   |------------|--------|
+   | Enable correlation | `True` |
+   | Person correlation field | `ExternalId` |
+   | Account correlation field | `_outputInfo.externalId` |
+
+9. Controleer of je alle vinkjes hebt gezet: Field Configuration ✓ Create ✓ Update ✓ Delete ✓ Permission Default Scope ✓ Permission Role ✓ Resource Cache ✓
+10. Klik **Complete Migration** → bevestig.
+
+</details>
+
+---
+
+<details open>
+<summary>
+
+## G — Reference Cleaner (post-migratie)
+
+</summary>
+
+1. Open de Reference Cleaner: `https://[klantnaam].helloid.com/provisioning/#/reference-cleaner/overview`
+2. Klik **Start cleaner**.
+3. Wacht tot de statusindicatoren zijn bijgewerkt en beoordeel het resultaat:
+   - Alle vinkjes **groen** → ga door naar stap 4.
+   - **Enforcement Runs** blijft draaien → er zijn nog pending actions. Klik **Stop cleaner**, los de pending actions op via Stap D en voer daarna Stap G opnieuw uit vanaf het begin.
+   - Enforcement Runs is groen maar **andere indicatoren** staan niet op groen → los de gemelde issues op aan de hand van de Reference Cleaner handleiding.
+4. Selecteer de **Roles** Permission Configuration.
+5. Klik **Determine differences** — controleer dat `DisplayName` en `DisplayNameFull` in de "to remove"-lijst staan.
+6. Klik **Remove fields**.
+7. Controleer de **History** rechts — actie gelogd?
+8. Klik **Stop cleaner**. *(Browsertab sluiten stopt de Cleaner NIET — expliciet stoppen verplicht, als je de cleaner niet stopt, zijn alle business rules read-only.)*
+
+</details>
+
+---
+
+<details open>
+<summary>
+
+## H — Default Scope (legacy) Entitlement instellen
+
+</summary>
+
+> Voer de onderstaande stappen uit voor **alle business rules** waarin de oude Default Scope entitlement is opgenomen. Controleer eerst hoeveel business rules de Default Scope bevatten.
+
+Voer de stappen in exact deze volgorde uit, voor elke business rule afzonderlijk:
+
+1. Zoek de business rules met de **oude Default Scope** entitlement:
+   - Ga naar **Business → Rules → tab Entitlements**.
+   - Zoek op de naam van de Default Scope entitlement (bijv. "DefaultScope" — afhankelijk van hoe de permissiedefinitie is ingericht).
+   - Selecteer het entitlement — rechts onder **Details** verschijnen alle business rules waarin dit entitlement is opgenomen.
+   - Open de betreffende business rules via **Ctrl+klik** of **middlemuisklik** op het moersleuteltje om ze in een nieuw venster te openen.
+2. Vink de oude Default Scope **uit**.
+3. Draai een **Sync** op de entitlements van Nedap Ons Users Test.
+4. Vink de nieuwe **Default Scope (legacy)** entitlement **aan**.
+5. Publiceer de business rule — kies bij het publiceren voor **Unmanage removed entitlement(s)** voor het oude Default Scope entitlement.
+
+   > ⚠️ Sla de Unmanage-stap niet over. Zonder Unmanage probeert het systeem de oude permissie alsnog in te trekken en genereren de acties straks een error.
+
+</details>
+
+---
+
+<details open>
+<summary>
+
+## I — CSV-bestanden controleren
+
+</summary>
+
+De V2-connector gebruikt nieuwe kolomnamen in de mapping-bestanden. Als de `locations.csv` en `teams.csv` nog de oude kolomnamen bevatten, zal de connector fouten geven bij de enforcement in Stap J.
+
+Controleer of de bestanden in de **testmap** de volgende kolomnamen bevatten:
+- `HelloIDPrimaryLookupKey`
+- `HelloIDSecondaryLookupKey`
+
+Zo niet: genereer nu nieuwe CSV-bestanden via het exportscript (zie Voorbereiding) voordat je verdergaat met Stap J.
+
+</details>
+
+---
+
+<details open>
+<summary>
+
+## J — Afronden en valideren
+
+</summary>
+
+1. Draai een **Sync** op de entitlements.
+2. Forceer update van alle accounts via **Update all accounts**.
+3. Forceer update van alle Default Scope permissies: ga naar de permissiedefinitie van Default Scope en klik het gele knopje met het refresh-icoon (twee ronde pijltjes) rechts van het rode delete-icoon — dit is **Update in permission in definition**.
+4. Herhaal dit voor de permissiedefinitie van Roles.
+5. Draai een **Enforcement**.
+6. Ga naar **Business → Entitlements → tab Blocked** — zet de Blocked actions voor accounts door en wacht totdat deze allemaal zijn uitgevoerd.
+7. Zet de resterende Blocked actions voor de default scope en roles door en wacht totdat deze allemaal zijn uitgevoerd.
+8. Controleer:
+   - Geen nieuwe errors in de audit log
+   - Pending actions = 0
+9. Laat de klant valideren of alle accounts en rollen nog correct zijn.
+10. Klant geeft **schriftelijk akkoord** (mail of Topdesk-ticket).
+11. Zet **alle schedules** weer aan.
+12. Verwijder de **migration reference** connector: dit is een automatisch aangemaakte, disabled en read-only connector met de naam van de originele connector gevolgd door "**- migration reference**". Deze bevat de volledige V1-configuratie en scripts zoals die waren op het moment dat de migratie werd gestart. Verwijder deze connector nadat de migratie volledig is gevalideerd.
+
+</details>
+
+---
