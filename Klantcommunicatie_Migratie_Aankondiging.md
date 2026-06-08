@@ -20,7 +20,7 @@ Op [datum] voeren we de migratie uit op jullie testomgeving. De migratie duurt n
 
 Na afloop van de testmigratie ontvang je van ons een verzoek om de testomgeving kort te valideren. We vragen je daarna om schriftelijk akkoord te geven vóór we verder gaan naar productie.
 
-- Er worden **geen provisioning-acties** uitgevoerd (nieuwe accounts, wijzigingen en intrekkingen worden uitgesteld tot na de migratie).
+- Er worden **geen provisioning-acties** uitgevoerd (nieuwe accounts, wijzigingen en intrekkingen worden uitgesteld tot na de testmigratie).
 - **Beheer via HelloID** is tijdelijk niet beschikbaar.
 
 > **Belangrijk:** zet de testomgeving na dag 1 niet opnieuw handmatig over vanuit productie. Jullie voeren na dag 1 een validatie uit op de testomgeving — die validatie is niet mogelijk als de omgeving tussentijds overschreven is.
@@ -50,4 +50,4 @@ Een paar dagen voor de migratie sturen wij een verzoek via Nedap Ons Podium voor
 We vragen je om een beheerder beschikbaar te houden die toegang heeft tot:
 
 - **Nedap Ons Podium**, om de certificaatverzoeken te kunnen goedkeuren (zie hierboven).
-- **De server waarop het CSV-exportscript draait**, als dit script lokaal op een server staat (en niet in HelloID zelf). Door de migratie wijzigen de kolomnamen in het exportbestand, waardoor het script op de migratiedag aangepast moet worden. We hebben hiervoor remote toegang tot die server nodig, of een beheerder die 
+- **De server waarop het CSV-exportscript draait**, als dit script lokaal op een server staat (en niet in HelloID zelf). Door de migratie wijzigen de kolomnamen in het exportbestand, waardoor het script op de migratiedag aangepast moet worden. We hebben hiervoor remote toegang tot die server nodig, of een beheerder 
