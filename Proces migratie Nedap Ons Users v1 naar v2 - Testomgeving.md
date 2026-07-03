@@ -104,7 +104,6 @@
 2. Open de productieconnector **Provisioning → Systems → Nedap Ons - Users**.
 3. Kopieer alle **scripts** (Create, Update, Delete, Permission Default Scope, Permission Roles, Resources) en de volledige **configuratie** naar de **Nedap Ons - Users Test** connector via copy-paste per script in de script-editor. *(Je maakt hiermee een exacte kopie van de productieconnector voor de testomgeving.)* Let daarbij op:
    - Controleer dat de **naam van de Default Scope entitlement** exact overeenkomt met de productieconnector — inclusief hoofdlettergebruik.
-   - Controleer dat de **correlatie-instellingen** (Tab Correlation) identiek zijn aan de productieconnector.
 4. Maak op de server een **testmap** aan (als die er nog niet is) en kopieer daarin:
    - Het **certificaatbestand** (`.pfx`) van de testomgeving
    - De **locations mapping** (`locations.csv`)
@@ -133,7 +132,7 @@
 
 </summary>
 
-1. Ga naar **Business Rules** → filter op Nedap Ons Users **en** Nedap Ons Users Test, status "Draft" + "Published" aan, "None" uit. *(Dit geeft overzicht van alle uitgedeelde entitlements. Noteer het huidige aantal.)*
+1. Ga naar **Business → Rules → tab Entitlements** → filter op Nedap Ons Users **en** Nedap Ons Users Test, status "Draft" + "Published" aan, "None" uit. *(Dit geeft overzicht van alle uitgedeelde entitlements op basis van de filternamen. Noteer het huidige aantal.)*
 2. Koppel elk entitlement dat in de productieregel staat ook aan de **testconnector**. Doe dit voor alle Nedap Ons-entitlements. Na voltooiing moet het totaal aantal entitlements **precies het dubbele** zijn van het beginaantal — elk entitlement staat nu zowel op de productie- als de testconnector.
 3. Draai een **Enforce +** om alles gelijk te trekken en de cachebestanden te genereren: klik op het pijltje rechts van de **Enforce**-knop en kies **>>+ Enforce** — dit voert de enforcement direct uit. Alle geblokkeerde entitlements kunnen worden doorgezet — komen er fouten uit, dan ligt de oorzaak waarschijnlijk in een verkeerd pad of ontbrekend bestand uit Stap B, punt 5. Controleer in dat geval de configuratie van de testconnector.
 4. Controleer de auditlog op fouten na de Enforcement+. Los op wat mogelijk is en **documenteer elke fix** — dezelfde fouten zitten ook in productie. Niet alles hoeft nu opgelost te zijn; pending actions worden afgehandeld in Stap D.
